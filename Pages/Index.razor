@@ -2,8 +2,42 @@
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+<h2>Generador de Clase</h2>
 
-Welcome to your new app.
+<p>Agregue los atributos de la clase y el tipo de dato</p>
+<MudTextField Class="col-4" @bind-Value="nombreClase" Label="Nombre de la clase" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+<MudSpacer/>
+<br />
+<MudGrid>
+    <MudItem>
+        <h3>Atributos</h3>
+        <MudTextField Class="col-12" @bind-Value="nombreClase" Label="Nombre de la clase" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    </MudItem>
+    <MudItem>
+        <h3>Tipo de dato</h3>
+        <MudSelect Margin="Margin.Dense" T="string"  Variant="Variant.Outlined">
+            <MudSelectItem Value="@("Tyrannosaur")" />
+            <MudSelectItem Value="@("Triceratops")" />
+            <MudSelectItem Value="@("Henon Rex")" />
+        </MudSelect>
+    </MudItem>
+    <MudItem Class="ml-4">
+        <h3>Acepta null</h3>
+    <MudSwitch @bind-Checked="@aceptaNull" Color="Color.Primary" Style="margin:auto;"/>
+    </MudItem>
+    <MudItem Class="ml-8">
+        <h3>Valor por defecto</h3>
+        <MudTextField Class="col-12" @bind-Value="valorPorDefecto" Label="Valor por defecto" Variant="Variant.Outlined" Margin="Margin.Dense"></MudTextField>
+    </MudItem>
+   <MudItem style="display:flex; justify-content:center; align-items:center; margin-top:40px;">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary">Agregar</MudButton>
+   </MudItem>
+ </MudGrid>
+
+@code
+{
+    public string nombreClase { get; set; }
+    public bool aceptaNull { get; set; }
+    public string valorPorDefecto { get; set; }
+}
