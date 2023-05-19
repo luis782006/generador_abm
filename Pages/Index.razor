@@ -2,11 +2,11 @@
 @using Generador_ABM.Data;
 @using static Generador_ABM.Data.EnumTipoDato;
 
+
 <PageTitle>Index</PageTitle>
 <MudPaper Class="d-flex justify-content-around px-1" Elevation="0">
     <h2>Generador de Clase</h2>
-    <h2>Lista de aributos</h2>
-
+    <h2>Lista de atributos</h2>
 </MudPaper>
 <MudGrid >
 <MudItem xs="8">
@@ -18,7 +18,8 @@
             <MudText Typo="Typo.h6">Agregue los atributos de la clase y el tipo de dato</MudText>
             <MudTextField Class="col-4" @bind-Value="nombreClase" Label="Nombre de la clase"
                           Variant="Variant.Outlined"
-                          Margin="Margin.Dense"
+                          Margin="Margin.Dense"            
+                          AutoFocus=true
                           Required="true"
                           RequiredError="Ingrese el nombre de la clase"></MudTextField>
             <MudSpacer />
@@ -26,7 +27,8 @@
             <MudGrid>
                 <MudItem>
                     <MudText Typo="Typo.h6">Atributos</MudText>
-                    <MudTextField Class="col-12" @bind-Value="atributo" Label="Nombre de atributo"
+                    <MudTextField @ref="txtAtributo"
+                                  Class="col-12" @bind-Value="atributo" Label="Nombre de atributo"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   Required="true"
@@ -57,19 +59,74 @@
                     <MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" @onclick="Agregar">Agregar</MudButton>
                 </MudItem>
             </MudGrid>
+            <MudItem style="display:flex; justify-content:center; align-items:center; margin-top:2rem;">
+                <MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" @onclick="Agregar">Generar Clase</MudButton>
+            </MudItem>
         </MudForm>
     </MudPaper>
-</MudItem>
-
+    </MudItem>
     <MudItem xs="4" >
         @*Lista de la clase*@
-        <MudPaper Elevation=5 Class="d-flex align-center justify-center mud-width-full py-8">
+        <MudPaper Elevation=5 Class="d-flex align-center justify-center  py-2">
               <MudList>
                 @foreach (var atributo in lstAtributos)
                 {
-                    <MudListItem Text=@atributo.NombreAtributo />
+                    @*Se muestra todos los atributos del listado para mostrar*@
+                    <MudExpansionPanels>
+                        <div ondragover="event.preventDefault()"
+                            Draggable="true"
+                            @ondragstart="() => OndragStart(atributo)"
+                            @ondrop="() => OnDrop(atributo)">
+                            <MudExpansionPanel Text="@atributo.NombreAtributo" MaxHeight="150">   
+                                        <div>
+                                             <MudTextField @bind-Value="@atributo.TipoDato" Label="Tipo de dato" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                            
+                                        </div>
+                                        <div>
+                                            @atributo.AceptaNull
+                                        </div>
+                                        <div>
+                                            @atributo.ValorPorDefecto
+                                        </div>
+                            </MudExpansionPanel>
+
+                         </div>
+                    </MudExpansionPanels>
+
+
+
+                    
+
+                   
                 }
              </MudList>
+        </MudPaper>
+    </MudItem>
+   
+   
+    <MudItem xs="8">
+        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
+            @*Clase*@
+            <MudList>
+                @foreach (var atributo in lstAtributos)
+                {
+                    @*Se interpola todos los atributos del listado para mostrar*@
+                    <MudListItem T="string" style="border: 1px solid #E0E0E0; border-radius:1rem; margin-bottom:2rem;">
+                        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="(() => Eliminar(atributo))" />
+                        
+                        <item ondragover="event.preventDefault()"
+                             Draggable="true"
+                             @ondragstart="() => OndragStart(atributo)"
+                             @ondrop="() => OnDrop(atributo)"
+                             Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Api">
+                            @($"Propiedad:{atributo.NombreAtributo} - Tipo:{atributo.TipoDato} - Acepta Nulo:{(atributo.AceptaNull ? "?" : "")} - Valor por defecto:{atributo.ValorPorDefecto}")
+                           
+                        </item>
+                    </MudListItem>
+
+                }
+            </MudList>
+            
         </MudPaper>
     </MudItem>
 </MudGrid>
@@ -77,10 +134,12 @@
 
 @code
 {
-        //Para manejo de errores formulario
-        MudForm form;
-        bool success;
-        string[] errors = { };
+    //Para manejo de errores formulario
+    MudForm form;
+    bool success;
+    string[] errors = { };
+    // ref de MudTextField para acceder a la funcion FocusAsync()
+    MudTextField<string> txtAtributo;
 
     //Para valores de formulario
     public string nombreClase;
@@ -96,16 +155,52 @@
     //Declaro un listado de Tipo Clase
     List<Clase> lstAtributos = new List<Clase>();
 
+    //Variables de uso para manejar Drag and Drop
+    private Clase objetoArrastrado; // para indicar el objeto arrastrado
+    private bool arrastrando = false; // para saber si el elemento esta o no siendo arrastrado
+
+    //Variable de tipo Clase para obtener el item que se esta drageando
+    private Clase? ItemDrag { get; set; }
+
     public void Agregar()
     {
         //se invoca el metodo con los argumentos que ingresan por formulario
         clase.AgregarAtributo(atributo, tipoDatoSelecionado, aceptaNull, valorPorDefecto);
         CargarListado();
-        
+        LimpiarForm();
+        StateHasChanged();
+        txtAtributo.FocusAsync();
     }
 
     public void CargarListado()
     {
         lstAtributos=clase.listaAtributos;
     }
+
+    public void LimpiarForm()
+    {
+        atributo="";
+        aceptaNull=false;
+        valorPorDefecto=string.Empty;
+        
+    }
+
+    public void Eliminar(Clase atributo)
+    {
+        lstAtributos.Remove(atributo);
+    }
+
+    // funcion OndragStart para obtener el item que esta siendo drageado
+    // misa funcion con lambda private void OndragStart(Clase clase) => ItemDrag = clase;
+    private void OndragStart(Clase clase)
+    {
+        ItemDrag = clase;
+    }
+
+    private void OnDrop(Clase itemDrop)
+    {
+        lstAtributos.Swap(itemDrop, ItemDrag);
+    }
+
+
 }

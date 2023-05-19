@@ -24,14 +24,6 @@ namespace Generador_ABM.Data
                 AceptaNull = aceptaNull,
                 ValorPorDefecto = valorPorDefecto
             });
-
-            // Limpiar formulario
-            //nombreAtributo = string.Empty;
-            //tipoDatoSeleccionado = DataType.String;
-            //aceptaNull = false;
-            //valorPorDefecto = string.Empty;
-
-           
         }
     }
 }
