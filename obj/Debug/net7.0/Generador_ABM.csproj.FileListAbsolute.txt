@@ -78,3 +78,4 @@ C:\Users\usuario\source\repos\generador_abm\obj\Debug\net7.0\refint\Generador_AB
 C:\Users\usuario\source\repos\generador_abm\obj\Debug\net7.0\Generador_ABM.pdb
 C:\Users\usuario\source\repos\generador_abm\obj\Debug\net7.0\Generador_ABM.genruntimeconfig.cache
 C:\Users\usuario\source\repos\generador_abm\obj\Debug\net7.0\ref\Generador_ABM.dll
+C:\Users\usuario\source\repos\generador_abm\obj\Debug\net7.0\scopedcss\Pages\Index.razor.rz.scp.css

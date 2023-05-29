@@ -11,7 +11,7 @@ namespace Generador_ABM.Data
         public DataType TipoDato { get; set; }
         public bool AceptaNull { get; set; }
         public string? ValorPorDefecto { get; set; }
-
+        public bool IsExpanded { get; set; } = false;
         public Clase() { }
 
         public List<Clase> listaAtributos=new List<Clase>();

@@ -20,16 +20,16 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/usuario/source/repos/generador_abm/Pages/ConfirmarGeneradorClase.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29uZmlybWFyR2VuZXJhZG9yQ2xhc2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/usuario/source/repos/generador_abm/Pages/Counter.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ291bnRlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/usuario/source/repos/generador_abm/Pages/FetchData.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmV0Y2hEYXRhLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/usuario/source/repos/generador_abm/Pages/Index.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/usuario/source/repos/generador_abm/Shared/SurveyPrompt.razor]
@@ -39,6 +39,10 @@ build_metadata.AdditionalFiles.CssScope =
 [C:/Users/usuario/source/repos/generador_abm/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/usuario/source/repos/generador_abm/Pages/Index.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = b-i3lsdhs41t
 
 [C:/Users/usuario/source/repos/generador_abm/Shared/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = U2hhcmVkXE1haW5MYXlvdXQucmF6b3I=

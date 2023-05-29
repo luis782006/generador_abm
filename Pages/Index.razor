@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using Generador_ABM.Data;
 @using static Generador_ABM.Data.EnumTipoDato;
+@inject IDialogService DialogService
 
 
 <PageTitle>Index</PageTitle>
@@ -9,20 +10,43 @@
     <h2>Lista de atributos</h2>
 </MudPaper>
 <MudGrid >
-<MudItem xs="8">
-        <MudPaper Class="d-flex align-center justify-center py-4" Elevation=5>
+    <MudItem xs="8">
+        <MudPaper Class="d-flex align-center justify-center py-4" Elevation=2 style="border-radius:1rem; border:2px solid #594ae2;">
      
         @*Formulario de Clase*@
 
         <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" ReadOnly="false">
             <MudText Typo="Typo.h6">Agregue los atributos de la clase y el tipo de dato</MudText>
-            <MudTextField Class="col-4" @bind-Value="nombreClase" Label="Nombre de la clase"
-                          Variant="Variant.Outlined"
-                          Margin="Margin.Dense"            
-                          AutoFocus=true
-                          Required="true"
-                          RequiredError="Ingrese el nombre de la clase"></MudTextField>
+            <MudGrid>
+                <MudItem>
+                    <MudTextField @bind-Value="@NameSpace" Label="NameSpace"
+                                Class="col-12"
+                                Variant="Variant.Outlined" 
+                                Margin="Margin.Dense" 
+                                style="margin-bottom:0.5rem;"
+                                Required="true"
+                                RequiredError="Ingrese el namespace"
+                                AutoFocus=true />
+                </MudItem>
+                <MudItem>
+                    <MudTextField Class="col-12" @bind-Value="nombreClase" Label="Nombre de la clase"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"            
+                                  Required="true"
+                                  RequiredError="Ingrese el nombre de la clase">
+                    </MudTextField>
+                </MudItem>
+                <MudItem>
+                        <MudTextField Class="col-12" @bind-Value="nombreInterface" Label="Nombre de Interfaz"
+                                    Variant="Variant.Outlined"
+                                    Margin="Margin.Dense">
+                                   
+                    </MudTextField>
+                </MudItem>
             <MudSpacer />
+
+            </MudGrid>
+             
             <br />
             <MudGrid>
                 <MudItem>
@@ -35,6 +59,7 @@
                                   RequiredError="Ingrese el nombre del atributo"></MudTextField>
 
                 </MudItem>
+
                 <MudItem>
                     <MudText Typo="Typo.h6">Tipo de dato</MudText>
                     <MudSelect Class="col-12" TValue="DataType" @bind-Value="tipoDatoSelecionado" Variant="Variant.Outlined" Margin="Margin.Dense">
@@ -59,96 +84,113 @@
                     <MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" @onclick="Agregar">Agregar</MudButton>
                 </MudItem>
             </MudGrid>
-            <MudItem style="display:flex; justify-content:center; align-items:center; margin-top:2rem;">
-                <MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" @onclick="Agregar">Generar Clase</MudButton>
-            </MudItem>
         </MudForm>
-    </MudPaper>
+        </MudPaper>
     </MudItem>
-    <MudItem xs="4" >
-        @*Lista de la clase*@
-        <MudPaper Elevation=5 Class="d-flex align-center justify-center  py-2">
-              <MudList>
-                @foreach (var atributo in lstAtributos)
-                {
-                    @*Se muestra todos los atributos del listado para mostrar*@
-                    <MudExpansionPanels>
-                        <div ondragover="event.preventDefault()"
-                            Draggable="true"
-                            @ondragstart="() => OndragStart(atributo)"
-                            @ondrop="() => OnDrop(atributo)">
-                            <MudExpansionPanel Text="@atributo.NombreAtributo" MaxHeight="150">   
-                                        <div>
-                                             <MudTextField @bind-Value="@atributo.TipoDato" Label="Tipo de dato" Variant="Variant.Outlined" Margin="Margin.Dense" />
+    <MudItem xs="4">
+
+        <div id="another_unique_identifier" class="ma-0" style="height:80vh;overflow: auto; background-color:#F7F7F7;">
+            <MudPaper Height="3500px" Class="d-flex justify-content-center py-2" style="background-color:#F7F7F7; ">
+                
+                    <MudList>
+                        @foreach (var atributo in lstAtributos)
+                        {
+                            @*Se muestra todos los atributos del listado para mostrar*@
+                            <MudExpansionPanels style="width:20rem; margin-bottom:0.8rem;">
+                                <div ondragover="event.preventDefault()"
+                                 Draggable="true"
+                                 @ondragstart="() => OndragStart(atributo)"
+                                 @ondrop="() => OnDrop(atributo)">
+                                <MudExpansionPanel Text="@atributo.NombreAtributo" MaxHeight="@(tipoDatoSelecionado.ToString() == "Otro" ? 300 : 200)" @onmousedown="(()=>Expandir(atributo))" IsExpanded="@atributo.IsExpanded">
+
+                                        <item>
+                                            @*<MudTextField @bind-Value="tipoDatoSelecionado" Label="Tipo de Dato" style="margin-bottom:0.2rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />*@
+                                        <MudSelect Class="col-12" TValue="DataType" @bind-Value="tipoDatoFinal" Variant="Variant.Outlined" Margin="Margin.Dense" style="margin-bottom:0.4rem;">
+                                                @foreach (DataType dataType in Enum.GetValues(typeof(DataType)))
+                                                {
+                                                    <MudSelectItem Value="dataType">@dataType</MudSelectItem>
+
+                                                }
+                                            </MudSelect>
+                                                @if (tipoDatoSelecionado.ToString()=="Otro")
+                                                {
                                             
-                                        </div>
-                                        <div>
-                                            @atributo.AceptaNull
-                                        </div>
-                                        <div>
-                                            @atributo.ValorPorDefecto
-                                        </div>
-                            </MudExpansionPanel>
+                                                <MudTextField @bind-Value="@tipoDatoOtro" Label="Tipo Dato Personalizado" Variant="Variant.Outlined" Margin="Margin.Dense" style="margin-bottom:0.4rem;" />
+                                                }
 
-                         </div>
-                    </MudExpansionPanels>
+                                                <MudTextField @bind-Value="@atributo.AceptaNull" Label="Acepta Nulos" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                                <MudTextField @bind-Value="@atributo.ValorPorDefecto" Label="Valor por Defecto" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                        </item>
 
+                                            <MudItem Class="d-flex justify-content-between">
+                                                <MudFab Color="Color.Secondary" @onclick="(() => Eliminar(atributo))" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" />
+                                                <MudFab Color="Color.Secondary" @onclick="(() => CerrarPanel(atributo))" StartIcon="@Icons.Material.Filled.ArrowUpward" Size="Size.Small" />
+                                            </MudItem>
+                                    </MudExpansionPanel>
 
+                                </div>
+                            </MudExpansionPanels>
 
-                    
+                        }
+                    </MudList>
+               
+                
+                
+            </MudPaper>
+                <MudScrollToTop TopOffset="100" Selector="#another_unique_identifier" Style="z-index:2001;">
+                 <div class="mud-theme-primary px-4 py-6 fixed" style="bottom:120px;right:100px;background-color:#673AB7; color:white; border-radius:2rem;">
+                Arriba
+                </div>
+               @* <div class="px-3 py-6 mud-elevation-16 rounded-xl fixed" style="bottom:100px;right:100px;background-color:#673AB7; color:white;">
+                   Arriba
+                </div>*@
+                </MudScrollToTop>
+        </div>
 
-                   
-                }
-             </MudList>
-        </MudPaper>
-    </MudItem>
-   
-   
-    <MudItem xs="8">
-        <MudPaper Class="d-flex align-center justify-center mud-width-full py-8">
-            @*Clase*@
-            <MudList>
-                @foreach (var atributo in lstAtributos)
-                {
-                    @*Se interpola todos los atributos del listado para mostrar*@
-                    <MudListItem T="string" style="border: 1px solid #E0E0E0; border-radius:1rem; margin-bottom:2rem;">
-                        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" OnClick="(() => Eliminar(atributo))" />
-                        
-                        <item ondragover="event.preventDefault()"
-                             Draggable="true"
-                             @ondragstart="() => OndragStart(atributo)"
-                             @ondrop="() => OnDrop(atributo)"
-                             Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Api">
-                            @($"Propiedad:{atributo.NombreAtributo} - Tipo:{atributo.TipoDato} - Acepta Nulo:{(atributo.AceptaNull ? "?" : "")} - Valor por defecto:{atributo.ValorPorDefecto}")
-                           
-                        </item>
-                    </MudListItem>
-
-                }
-            </MudList>
-            
-        </MudPaper>
+        @*Lista de la clase*@
+       
+            <MudItem style="display:flex; justify-content:center; align-items:center; margin-top:2rem;">
+            <MudButton Variant="Variant.Filled" Disabled="@successGeneradora" Color="Color.Primary" @onclick="GenerarAcrhivo">Generar Clase</MudButton>
+            </MudItem>
     </MudItem>
 </MudGrid>
 
 
+
 @code
 {
+    /// <summary>
+    /// TODO
+    /// Verificar que el tipo de dato no se cambie si se toca los datos
+    /// </summary>
+
     //Para manejo de errores formulario
     MudForm form;
     bool success;
+    bool successGeneradora;
     string[] errors = { };
     // ref de MudTextField para acceder a la funcion FocusAsync()
     MudTextField<string> txtAtributo;
 
+    //public MudExpansionPanel mudExpansion { get; set; }
+    private bool IsExpanded = false;
+
     //Para valores de formulario
+    public string NameSpace;
     public string nombreClase;
+    public string nombreInterface;
     public string atributo;
     public bool aceptaNull;
     public string? valorPorDefecto;
+    public string? tipoDatoOtro;
+    public int tamañoItem=200;
+
+    //Opciones de Dialog
+    DialogOptions opciones = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true,CloseOnEscapeKey = true  };
 
     //Instancia el objeto y declaro el using static de la clase EnumTipodato para acceder al ella.
     public DataType tipoDatoSelecionado;
+    public DataType tipoDatoFinal;
 
     //Instancia de clase
     Clase clase = new Clase();
@@ -162,14 +204,41 @@
     //Variable de tipo Clase para obtener el item que se esta drageando
     private Clase? ItemDrag { get; set; }
 
+
     public void Agregar()
     {
         //se invoca el metodo con los argumentos que ingresan por formulario
+
         clase.AgregarAtributo(atributo, tipoDatoSelecionado, aceptaNull, valorPorDefecto);
         CargarListado();
         LimpiarForm();
         StateHasChanged();
         txtAtributo.FocusAsync();
+        success = false;
+
+    }
+    public void GenerarAcrhivo()
+    {
+        //Metodo para crear archivo
+            DialogGenerador(opciones);
+        //if (lstAtributos.Count() == 0)
+        //{
+        //}
+    }
+    private async void DialogGenerador(DialogOptions options)
+    {
+        var parameters = new DialogParameters
+        {
+            {"ListaDeAtributos", lstAtributos }  
+        };
+       
+
+        var dialog= await DialogService.ShowAsync<ConfirmarGeneradorClase>("Generar Clase", parameters,opciones);
+        var result = await dialog.Result;
+        if (!result.Canceled)
+        {
+            Console.WriteLine("Se cerro");
+        }
     }
 
     public void CargarListado()
@@ -182,12 +251,14 @@
         atributo="";
         aceptaNull=false;
         valorPorDefecto=string.Empty;
-        
+
     }
 
     public void Eliminar(Clase atributo)
     {
         lstAtributos.Remove(atributo);
+        StateHasChanged();
+
     }
 
     // funcion OndragStart para obtener el item que esta siendo drageado
@@ -195,12 +266,28 @@
     private void OndragStart(Clase clase)
     {
         ItemDrag = clase;
+
     }
 
     private void OnDrop(Clase itemDrop)
     {
         lstAtributos.Swap(itemDrop, ItemDrag);
+        ItemDrag.IsExpanded = false;
+
     }
 
+    public void Expandir(Clase atributo )
+    {
+        //atributo.IsExpanded = !atributo.IsExpanded;
+        //if (!atributo.IsExpanded)
+        //{
+        //    atributo.IsExpanded=true;
+        //}
+        atributo.IsExpanded = true;
+    }
+    public void CerrarPanel(Clase atributo)
+    {
+        atributo.IsExpanded = false;
+    }
 
 }

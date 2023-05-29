@@ -32,7 +32,8 @@ namespace Generador_ABM.Data
             SByte,
             UInt,
             ULong,
-            UShort
+            UShort,
+            Otro
         }
 
     }
