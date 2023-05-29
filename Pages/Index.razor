@@ -220,25 +220,32 @@
     public void GenerarAcrhivo()
     {
         //Metodo para crear archivo
+        if (lstAtributos.Count() == 0)
+        {
+            
             DialogGenerador(opciones);
-        //if (lstAtributos.Count() == 0)
-        //{
-        //}
+        }
+        else
+        {
+            //Crear el archivo y leer el archivo para mostrar
+         
+         }
     }
     private async void DialogGenerador(DialogOptions options)
     {
+        //variable de parametro para mostrar la clase en el Dialog del otro lado. Si uso de momento
         var parameters = new DialogParameters
         {
             {"ListaDeAtributos", lstAtributos }  
         };
        
-
         var dialog= await DialogService.ShowAsync<ConfirmarGeneradorClase>("Generar Clase", parameters,opciones);
         var result = await dialog.Result;
-        if (!result.Canceled)
-        {
-            Console.WriteLine("Se cerro");
-        }
+
+        //if (!result.Canceled)
+        //{
+            // Hacer algo despues de que se cerro el dialog
+        //}
     }
 
     public void CargarListado()
