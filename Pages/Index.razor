@@ -100,23 +100,9 @@
         </MudForm>
         
         </MudPaper>
-      @* <MudItem >
-           @*Recorrer el archivo 
-                @if (readText.Length != 0)
-                {
-                <MudPaper Class="pa-16 ma-2" Elevation="3" style="border-radius:1rem; border:2px solid #594ae2;">
-                   
-                        @for (int i = 0; i < readText.Length; i++)
-                        {
-                            <MudTextField T="string" @bind-Value="@readText[i]" style="padding-top:0px; padding-bottom:0px;"/>
-                        }
-                    </MudPaper>                                 
-                }
-       </MudItem>*@
+     
        <MudItem>
-           @* <InputFile OnChange="LoadFiles" />
-            <InputTextArea @bind-Value="textVar" cols="100" rows="20" />*@
-
+          
             <MudTextField T="string" @bind-Value="@textVar" style="padding-top:0px; padding-bottom:0px; background-color:#333131; color:white; width=60px; height=40px;" Lines="20" />
        </MudItem>
        <MudItem Class="d-flex justify-content-end">
@@ -340,7 +326,7 @@
 
 
     }
-   
+
     public void GuardarCambios()
     {
         //var i = 1;
@@ -351,6 +337,7 @@
         //    i++;
         //}
         var test = textVar.Split(Environment.NewLine); // Environment.NewLine determina cuando salta la linea
+       
         ManejoDeArchivo.ActualizarArchivo(test);
     }
 
