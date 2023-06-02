@@ -1,8 +1,11 @@
 ﻿@page "/"
+
 @using Generador_ABM.Data;
 @using static Generador_ABM.Data.EnumTipoDato;
 @inject IDialogService DialogService
-
+@inject ISnackbar Snackbar
+@using System.IO;
+@using System.Text;
 
 <PageTitle>Index</PageTitle>
 <MudPaper Class="d-flex justify-content-around px-1" Elevation="0">
@@ -43,6 +46,16 @@
                                    
                     </MudTextField>
                 </MudItem>
+                    <MudItem>
+                        <MudTextField Class="col-12" @bind-Value="@rutaArchivo" Label="Ruta" HelperText="Indique la ruta donde se guardaran las clases"
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Dense"
+                                      Required="true"
+                                      RequiredError="Ingrese la ruta"
+                                      >
+
+                        </MudTextField>
+                    </MudItem>
             <MudSpacer />
 
             </MudGrid>
@@ -83,10 +96,36 @@
                 <MudItem style="display:flex; justify-content:center; align-items:center; margin-top:40px;">
                     <MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" @onclick="Agregar">Agregar</MudButton>
                 </MudItem>
-            </MudGrid>
+            </MudGrid>           
         </MudForm>
+        
         </MudPaper>
+      @* <MudItem >
+           @*Recorrer el archivo 
+                @if (readText.Length != 0)
+                {
+                <MudPaper Class="pa-16 ma-2" Elevation="3" style="border-radius:1rem; border:2px solid #594ae2;">
+                   
+                        @for (int i = 0; i < readText.Length; i++)
+                        {
+                            <MudTextField T="string" @bind-Value="@readText[i]" style="padding-top:0px; padding-bottom:0px;"/>
+                        }
+                    </MudPaper>                                 
+                }
+       </MudItem>*@
+       <MudItem>
+           @* <InputFile OnChange="LoadFiles" />
+            <InputTextArea @bind-Value="textVar" cols="100" rows="20" />*@
+
+            <MudTextField T="string" @bind-Value="@textVar" style="padding-top:0px; padding-bottom:0px; background-color:#333131; color:white; width=60px; height=40px;" Lines="20" />
+       </MudItem>
+       <MudItem Class="d-flex justify-content-end">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" style="margin-top:2rem;" OnClick="GuardarCambios">Guardar cambios</MudButton>
+       </MudItem>
+
     </MudItem>
+       
+
     <MudItem xs="4">
 
         <div id="another_unique_identifier" class="ma-0" style="height:80vh;overflow: auto; background-color:#F7F7F7;">
@@ -104,14 +143,24 @@
                                 <MudExpansionPanel Text="@atributo.NombreAtributo" MaxHeight="@(tipoDatoSelecionado.ToString() == "Otro" ? 300 : 200)" @onmousedown="(()=>Expandir(atributo))" IsExpanded="@atributo.IsExpanded">
 
                                         <item>
-                                            @*<MudTextField @bind-Value="tipoDatoSelecionado" Label="Tipo de Dato" style="margin-bottom:0.2rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />*@
-                                        <MudSelect Class="col-12" TValue="DataType" @bind-Value="tipoDatoFinal" Variant="Variant.Outlined" Margin="Margin.Dense" style="margin-bottom:0.4rem;">
-                                                @foreach (DataType dataType in Enum.GetValues(typeof(DataType)))
-                                                {
-                                                    <MudSelectItem Value="dataType">@dataType</MudSelectItem>
-
-                                                }
-                                            </MudSelect>
+                                        @if (!ModificarTipo)
+                                        {
+                                            <item style="display:flex">
+                                                <MudTextField @bind-Value="atributo.TipoDato" Label="Tipo de Dato" style="margin-bottom:0.2rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                                <MudCheckBox @bind-Checked="@ModificarTipo" Color="Color.Primary" >Modificar</MudCheckBox>
+                                            </item>
+                                        }
+                                        else
+                                        {
+                                            <MudSelect Class="col-12" TValue="DataType" @bind-Value="tipoDatoFinal" Variant="Variant.Outlined"  Margin="Margin.Dense" style="margin-bottom:0.4rem;">
+                                                    @foreach (DataType dataType in Enum.GetValues(typeof(DataType)))
+                                                    {
+                                                    <MudSelectItem Value="dataType" >@dataType</MudSelectItem>
+                                                   
+                                                    }
+                                            </MudSelect>    
+                                            
+                                        }
                                                 @if (tipoDatoSelecionado.ToString()=="Otro")
                                                 {
                                             
@@ -123,27 +172,26 @@
                                         </item>
 
                                             <MudItem Class="d-flex justify-content-between">
-                                                <MudFab Color="Color.Secondary" @onclick="(() => Eliminar(atributo))" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" />
-                                                <MudFab Color="Color.Secondary" @onclick="(() => CerrarPanel(atributo))" StartIcon="@Icons.Material.Filled.ArrowUpward" Size="Size.Small" />
+                                                <MudItem Class="d-flex justify-content-start">
+                                                    <MudFab Color="Color.Secondary" @onclick="(() => CambioTipoDato(atributo))" StartIcon="@Icons.Material.Filled.Save" Size="Size.Small" />
+                                                    <MudFab Color="Color.Secondary" @onclick="(() => CerrarPanel(atributo))" StartIcon="@Icons.Material.Filled.ArrowUpward" Size="Size.Small" />
+                                                </MudItem>
+                                                <MudItem Class="d-flex justify-content-end">
+                                                    <MudFab Color="Color.Secondary" @onclick="(() => Eliminar(atributo))" StartIcon="@Icons.Material.Filled.Delete" Size="Size.Small" />                                                
+                                                </MudItem>
                                             </MudItem>
                                     </MudExpansionPanel>
 
                                 </div>
                             </MudExpansionPanels>
-
                         }
                     </MudList>
-               
-                
-                
+
             </MudPaper>
                 <MudScrollToTop TopOffset="100" Selector="#another_unique_identifier" Style="z-index:2001;">
-                 <div class="mud-theme-primary px-4 py-6 fixed" style="bottom:120px;right:100px;background-color:#673AB7; color:white; border-radius:2rem;">
-                Arriba
-                </div>
-               @* <div class="px-3 py-6 mud-elevation-16 rounded-xl fixed" style="bottom:100px;right:100px;background-color:#673AB7; color:white;">
-                   Arriba
-                </div>*@
+                     <div class="mud-theme-primary px-4 py-6 fixed" style="bottom:120px;right:100px;background-color:#673AB7; color:white; border-radius:2rem;">
+                    Arriba
+                    </div>              
                 </MudScrollToTop>
         </div>
 
@@ -153,7 +201,9 @@
             <MudButton Variant="Variant.Filled" Disabled="@successGeneradora" Color="Color.Primary" @onclick="GenerarAcrhivo">Generar Clase</MudButton>
             </MudItem>
     </MudItem>
+   
 </MudGrid>
+
 
 
 
@@ -161,7 +211,7 @@
 {
     /// <summary>
     /// TODO
-    /// Verificar que el tipo de dato no se cambie si se toca los datos
+    /// 
     /// </summary>
 
     //Para manejo de errores formulario
@@ -182,7 +232,9 @@
     public string atributo;
     public bool aceptaNull;
     public string? valorPorDefecto;
+    //variable para darle la opcion de elegir otro Tipo de dato
     public string? tipoDatoOtro;
+    // Variable para modificar la tarjeta que contiene los datos del atributo
     public int tamañoItem=200;
 
     //Opciones de Dialog
@@ -192,10 +244,21 @@
     public DataType tipoDatoSelecionado;
     public DataType tipoDatoFinal;
 
+    //Booleano para modificar el tipo de dato si se desea
+    Boolean ModificarTipo=false;
     //Instancia de clase
     Clase clase = new Clase();
     //Declaro un listado de Tipo Clase
     List<Clase> lstAtributos = new List<Clase>();
+
+    // Variable para cargar el archivo
+    public String[] readText = { };
+    string rutaArchivo = "";
+
+    //manejo de archivo. 
+    StringBuilder textArea = new System.Text.StringBuilder(); 
+    string textVar { get; set; } = string.Empty;
+
 
     //Variables de uso para manejar Drag and Drop
     private Clase objetoArrastrado; // para indicar el objeto arrastrado
@@ -215,42 +278,96 @@
         StateHasChanged();
         txtAtributo.FocusAsync();
         success = false;
-
     }
+
     public void GenerarAcrhivo()
     {
-        //Metodo para crear archivo
-        if (lstAtributos.Count() == 0)
-        {
-            
-            DialogGenerador(opciones);
-        }
-        else
-        {
-            //Crear el archivo y leer el archivo para mostrar
-         
-         }
+        DialogGenerador(opciones);
     }
+
+
+
     private async void DialogGenerador(DialogOptions options)
     {
+
         //variable de parametro para mostrar la clase en el Dialog del otro lado. Si uso de momento
         var parameters = new DialogParameters
         {
-            {"ListaDeAtributos", lstAtributos }  
+            {"ListaDeAtributos", lstAtributos }, 
+            {"NombreClase",nombreClase},
+            {"Ruta", rutaArchivo}
         };
-       
-        var dialog= await DialogService.ShowAsync<ConfirmarGeneradorClase>("Generar Clase", parameters,opciones);
+
+        var dialog = await DialogService.ShowAsync<D_ConfirmarDestinoDeClase>("Generar Clase", parameters, opciones);
         var result = await dialog.Result;
 
-        //if (!result.Canceled)
+        // Al cerrar Dialog cargo el archivo creado
+        if (!result.Canceled)
+        {
+            try
+            {
+                string rutaArchivo1 = ManejoDeArchivo.RutaDeArchivo();             
+                var readTextAux = File.ReadAllLines(rutaArchivo1, Encoding.UTF8);
+
+                textArea.Clear(); //se limpia el contenido en caso que se quiera modificar despues de haber enerado el archivo
+
+                for (int i = 0; i < readTextAux.Length; i++)
+                {
+                    textArea.AppendLine(readTextAux[i].ToString());
+                }
+                textVar = textArea.ToString();
+
+                File.SetAttributes(rutaArchivo1, FileAttributes.Normal);
+                
+                
+                StateHasChanged();
+            }
+            catch (Exception e)
+            {
+                //Snackbar.Add("No existe el archivo",Severity.Warning);
+                Snackbar.Add
+                 (
+                    @<div>
+                        <h3>Error</h3>
+                        <p>
+                            No existe la ruta especifica para leer el archivo.
+                            @e.Message
+                        </p>
+        </div>
+    ,Severity.Warning);
+            }
+        }
+
+
+    }
+   
+    public void GuardarCambios()
+    {
+        //var i = 1;
+        //var test = textVar.Split(Environment.NewLine); // Environment.NewLine determina cuando salta la linea
+        //foreach (var item in test)
         //{
-            // Hacer algo despues de que se cerro el dialog
+        //    Console.WriteLine($"{i} {item}");
+        //    i++;
         //}
+        var test = textVar.Split(Environment.NewLine); // Environment.NewLine determina cuando salta la linea
+        ManejoDeArchivo.ActualizarArchivo(test);
     }
 
     public void CargarListado()
     {
         lstAtributos=clase.listaAtributos;
+    }
+
+    //Actualizar el atributo por su nuevo tipo de dato.
+    public void ActualizarLst(Clase atributo)
+    {
+        var ItemSeleccionado = lstAtributos.Where(x => x.NombreAtributo == atributo.NombreAtributo).FirstOrDefault();
+        if (ItemSeleccionado != null)
+        {
+            ItemSeleccionado.TipoDato = tipoDatoFinal;
+
+        }
     }
 
     public void LimpiarForm()
@@ -267,34 +384,60 @@
         StateHasChanged();
 
     }
+    public void CambioTipoDato(Clase atributo)
+    {
+
+        //Guardo modificacion del tipo de dato del atributo filtrando la lista
+        try
+        {
+            var ItemSeleccionado = lstAtributos.Where(x => x.NombreAtributo == atributo.NombreAtributo).FirstOrDefault();
+            if (ItemSeleccionado != null)
+            {
+
+                ItemSeleccionado.TipoDato = tipoDatoFinal;
+                ModificarTipo = false;
+
+            }
+        }
+        catch (Exception e)
+        {
+
+            Snackbar.Add($"Ocurrio un problema {e.Message}", Severity.Error);
+        }
+        StateHasChanged();
+    }
+
 
     // funcion OndragStart para obtener el item que esta siendo drageado
     // misa funcion con lambda private void OndragStart(Clase clase) => ItemDrag = clase;
     private void OndragStart(Clase clase)
     {
         ItemDrag = clase;
-
     }
 
     private void OnDrop(Clase itemDrop)
     {
         lstAtributos.Swap(itemDrop, ItemDrag);
         ItemDrag.IsExpanded = false;
-
     }
 
     public void Expandir(Clase atributo )
     {
-        //atributo.IsExpanded = !atributo.IsExpanded;
-        //if (!atributo.IsExpanded)
-        //{
-        //    atributo.IsExpanded=true;
-        //}
         atributo.IsExpanded = true;
     }
+
     public void CerrarPanel(Clase atributo)
     {
         atributo.IsExpanded = false;
     }
+
+    //Otro metodo para cargar un archivo
+    //public async void LoadFiles( IBrowserFile file)
+    //{
+    //    var reader = new StreamReader(file.OpenReadStream()); 
+    //    textVar = await reader.ReadToEndAsync();
+    //    Console.WriteLine(textVar);
+    //    StateHasChanged();
+    //}
 
 }

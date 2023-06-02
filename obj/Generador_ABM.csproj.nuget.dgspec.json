@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\usuario\\source\\repos\\generador_abm\\Generador_ABM.csproj": {}
+    "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\Generador_ABM.csproj": {}
   },
   "projects": {
-    "C:\\Users\\usuario\\source\\repos\\generador_abm\\Generador_ABM.csproj": {
+    "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\Generador_ABM.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\usuario\\source\\repos\\generador_abm\\Generador_ABM.csproj",
+        "projectUniqueName": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\Generador_ABM.csproj",
         "projectName": "Generador_ABM",
-        "projectPath": "C:\\Users\\usuario\\source\\repos\\generador_abm\\Generador_ABM.csproj",
+        "projectPath": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\Generador_ABM.csproj",
         "packagesPath": "C:\\Users\\usuario\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\usuario\\source\\repos\\generador_abm\\obj\\",
+        "outputPath": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

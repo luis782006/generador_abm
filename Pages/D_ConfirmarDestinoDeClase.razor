@@ -1,0 +1,71 @@
+﻿@using Generador_ABM.Data;
+@using Generador_ABM;
+
+
+    @if (ListaDeAtributos.Count() == 0)
+    {
+    <MudDialog>
+            <DialogContent>
+                <MudText Typo="Typo.subtitle1">No hay atributos para generar el archivo</MudText>
+            </DialogContent>
+
+            <DialogActions>
+            <MudButton Variant="Variant.Outlined" OnClick="Cancel" Color="Color.Primary">Cancel</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Submit">Aceptar</MudButton>
+            </DialogActions>
+    </MudDialog>
+}
+    else
+    {
+    <MudDialog>
+        <DialogContent>
+            <MudText Typo="Typo.subtitle1">Esta seguro que desea crear el archivo de clase @NombreClase</MudText>
+           
+        </DialogContent>
+
+        <DialogActions>
+            <MudButton Variant="Variant.Outlined" OnClick="Cancel" Color="Color.Primary">Cancel</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ProcesoDeClase">Crear</MudButton>
+        </DialogActions>
+    </MudDialog>
+    }
+
+@*<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.subtitle1">No hay atributos para generar el archivo</MudText>
+        @foreach (var item in ListaDeAtributos)
+        {
+            <MudText>@item.NombreAtributo.ToString();</MudText>
+            <MudText>@item.TipoDato.ToString();</MudText>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>*@
+
+
+
+@code {
+    // Dialog y parametros necesarios para ejecutar procedimientos
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    // Recibo la lista para usarla si lo deseo en el Dialog
+    [Parameter] public List<Clase> ListaDeAtributos { get; set; }
+    [Parameter] public String NombreClase { get; set; }
+    [Parameter] public String Ruta{ get; set; }
+
+    //string Ruta1 = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas";
+    public void ProcesoDeClase()
+    {
+        //Método para crear archivo desde Clase Manejo de Archivo
+        ManejoDeArchivo.CrearArchivoDeClase(ListaDeAtributos, NombreClase, Ruta);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+        
+    void Submit() => MudDialog.Close(DialogResult.Ok(true));
+
+    void Cancel() => MudDialog.Cancel();
+}
+

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "qMqNdRbTpEv7wwjRYwV611ObLD3JKWF0LZ4C8LVObsPAad4s5PPwCVUr+qEA4TEyoN0Gd++KlBCniXafjnWmOg==",
+  "dgSpecHash": "i1/rCR4dsU7CgV8RMxSXfknt8iXNrOu8citUwDPQQm4ghaUCAlBHdI+rfQPBlOv+u9awAsN8TkJbkuIcl4PjAA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\usuario\\source\\repos\\generador_abm\\Generador_ABM.csproj",
+  "projectFilePath": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\Generador_ABM.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\usuario\\.nuget\\packages\\microsoft.aspnetcore.authorization\\7.0.1\\microsoft.aspnetcore.authorization.7.0.1.nupkg.sha512",
     "C:\\Users\\usuario\\.nuget\\packages\\microsoft.aspnetcore.components\\7.0.1\\microsoft.aspnetcore.components.7.0.1.nupkg.sha512",
