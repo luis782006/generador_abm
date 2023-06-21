@@ -60,11 +60,9 @@ namespace Generador_ABM;
     public static void ActualizarArchivo(string[] test)
     {
         string path = RutaDeArchivo();
-        File.CreateText(path);
         foreach (var item in test)
         {
         string appendText = item + Environment.NewLine;
-            
         File.AppendAllText(path, appendText);
 
         }
