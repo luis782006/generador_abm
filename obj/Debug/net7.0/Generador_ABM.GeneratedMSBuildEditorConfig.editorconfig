@@ -28,6 +28,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRF9Db25maXJtYXJEZXN0aW5vRGVDbGFzZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/usuario/source/repos/GeneradorABM/Pages/D_ElegirConsultasSql.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRF9FbGVnaXJDb25zdWx0YXNTcWwucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/usuario/source/repos/GeneradorABM/Pages/FetchData.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRmV0Y2hEYXRhLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 

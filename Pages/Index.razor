@@ -18,7 +18,7 @@
      
         @*Formulario de Clase*@
 
-        <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" ReadOnly="false">
+        <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" ReadOnly="false" style="margin-left:2rem;">
             <MudText Typo="Typo.h6">Agregue los atributos de la clase y el tipo de dato</MudText>
             <MudGrid>
                 <MudItem>
@@ -93,33 +93,32 @@
                                   Margin="Margin.Dense"
                                   ></MudTextField>
                 </MudItem>
-                <MudItem style="display:flex; justify-content:center; align-items:center; margin-top:40px;">
+                <MudItem style="display:flex; justify-content:center; align-items:flex-end; ">
                     <MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" @onclick="Agregar">Agregar</MudButton>
                 </MudItem>
+                @*Grid de Opciones Consultas Sql*@
+                    <MudGrid style="padding-left:0.6rem; padding-bottom:0.5rem; ">
+                            <MudItem >
+                                <MudText Typo="Typo.subtitle1">Eliga sobre las siguientes opciones</MudText>
+                                    <MudPaper style="display:flex; flex-direction:row; padding-left:0.2rem; padding-right:1rem; ">
+                                        <MudCheckBox @bind-Checked="@SQLBase" Size="Size.Medium" Label="Select-Base" Color="Color.Primary"></MudCheckBox>
+                                        <MudCheckBox @bind-Checked="@SQLInsert" Size="Size.Medium" Label="Insert-Base" Color="Color.Primary"></MudCheckBox>
+                                        <MudCheckBox @bind-Checked="@SQLUpdate" Size="Size.Medium" Label="Update-Base" Color="Color.Primary"></MudCheckBox>
+                                        <MudCheckBox @bind-Checked="@SQLDelete" Size="Size.Medium" Label="Delete-Base" Color="Color.Primary"></MudCheckBox>
+                                        <MudCheckBox @bind-Checked="@SQLToString" Size="Size.Medium" Label="ToString-Base" Color="Color.Primary"></MudCheckBox>
+                                    </MudPaper>
+                            </MudItem>
+
+                    </MudGrid>    
             </MudGrid>           
         </MudForm>
-        
         </MudPaper>
-      @* <MudItem >
-           @*Recorrer el archivo 
-                @if (readText.Length != 0)
-                {
-                <MudPaper Class="pa-16 ma-2" Elevation="3" style="border-radius:1rem; border:2px solid #594ae2;">
-                   
-                        @for (int i = 0; i < readText.Length; i++)
-                        {
-                            <MudTextField T="string" @bind-Value="@readText[i]" style="padding-top:0px; padding-bottom:0px;"/>
-                        }
-                    </MudPaper>                                 
-                }
-       </MudItem>*@
+     
        <MudItem>
-           @* <InputFile OnChange="LoadFiles" />
-            <InputTextArea @bind-Value="textVar" cols="100" rows="20" />*@
-
+          
             <MudTextField T="string" @bind-Value="@textVar" style="padding-top:0px; padding-bottom:0px; background-color:#333131; color:white; width=60px; height=40px;" Lines="20" />
        </MudItem>
-       <MudItem Class="d-flex justify-content-end">
+       <MudItem Class="d-flex justify-content-between">          
             <MudButton Variant="Variant.Filled" Color="Color.Primary" style="margin-top:2rem;" OnClick="GuardarCambios">Guardar cambios</MudButton>
        </MudItem>
 
@@ -140,7 +139,7 @@
                                  Draggable="true"
                                  @ondragstart="() => OndragStart(atributo)"
                                  @ondrop="() => OnDrop(atributo)">
-                                <MudExpansionPanel Text="@atributo.NombreAtributo" MaxHeight="@(tipoDatoSelecionado.ToString() == "Otro" ? 300 : 200)" @onmousedown="(()=>Expandir(atributo))" IsExpanded="@atributo.IsExpanded">
+                                <MudExpansionPanel Text="@atributo.NombreAtributo"  @onmousedown="(()=>Expandir(atributo))" IsExpanded="@atributo.IsExpanded">
 
                                         <item>
                                         @if (!ModificarTipo)
@@ -161,11 +160,7 @@
                                             </MudSelect>    
                                             
                                         }
-                                                @if (tipoDatoSelecionado.ToString()=="Otro")
-                                                {
-                                            
-                                                <MudTextField @bind-Value="@tipoDatoOtro" Label="Tipo Dato Personalizado" Variant="Variant.Outlined" Margin="Margin.Dense" style="margin-bottom:0.4rem;" />
-                                                }
+                                       
 
                                                 <MudTextField @bind-Value="@atributo.AceptaNull" Label="Acepta Nulos" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
                                                 <MudTextField @bind-Value="@atributo.ValorPorDefecto" Label="Valor por Defecto" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
@@ -214,6 +209,10 @@
     /// 
     /// </summary>
 
+   
+
+
+
     //Para manejo de errores formulario
     MudForm form;
     bool success;
@@ -233,7 +232,7 @@
     public bool aceptaNull;
     public string? valorPorDefecto;
     //variable para darle la opcion de elegir otro Tipo de dato
-    public string? tipoDatoOtro;
+    public DataType? tipoDatoOtro;
     // Variable para modificar la tarjeta que contiene los datos del atributo
     public int tamañoItem=200;
 
@@ -267,6 +266,12 @@
     //Variable de tipo Clase para obtener el item que se esta drageando
     private Clase? ItemDrag { get; set; }
 
+    //Variables Boleanas para Consultas SQL
+    bool SQLBase = false;
+    bool SQLInsert=false;
+    bool SQLUpdate=false;
+    bool SQLDelete=false;
+    bool SQLToString=false;
 
     public void Agregar()
     {
@@ -294,11 +299,19 @@
         var parameters = new DialogParameters
         {
             {"ListaDeAtributos", lstAtributos }, 
+            {"NameSpace", NameSpace},
             {"NombreClase",nombreClase},
-            {"Ruta", rutaArchivo}
+            {"Ruta", rutaArchivo},
+            {"NombreInterface",nombreInterface},
+            {"SqlBase", SQLBase},
+            {"SqlInsert",SQLInsert},
+            {"SqlUpdate",SQLUpdate},
+            {"SqlDelete",SQLDelete},
+            {"SqlToString",SQLToString}
+
         };
 
-        var dialog = await DialogService.ShowAsync<D_ConfirmarDestinoDeClase>("Generar Clase", parameters, opciones);
+        var dialog = await DialogService.ShowAsync<D_ConfirmarDestinoDeClase>("Generar Clase", parameters, options);
         var result = await dialog.Result;
 
         // Al cerrar Dialog cargo el archivo creado
@@ -337,21 +350,41 @@
     ,Severity.Warning);
             }
         }
-
-
     }
-   
+
+    private async void ElegirConsultas()
+    {
+        //variable de parametro para mostrar la clase en el Dialog del otro lado. Si uso de momento
+        //var parameters = new DialogParameters
+        //{
+        //    {"ListaDeAtributos", lstAtributos }
+        //};
+
+        //var dialog = await DialogService.ShowAsync<D_ElegirConsultasSql>("Eleccion de consultas Sql", parameters, opciones);
+        var dialog = await DialogService.ShowAsync<D_ElegirConsultasSql>("Eleccion de consultas Sql", opciones);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            Console.WriteLine("");    
+        }
+    Console.WriteLine("Hola");
+    }
+
     public void GuardarCambios()
     {
-        //var i = 1;
-        //var test = textVar.Split(Environment.NewLine); // Environment.NewLine determina cuando salta la linea
-        //foreach (var item in test)
-        //{
-        //    Console.WriteLine($"{i} {item}");
-        //    i++;
-        //}
-        var test = textVar.Split(Environment.NewLine); // Environment.NewLine determina cuando salta la linea
-        ManejoDeArchivo.ActualizarArchivo(test);
+
+        try
+        {
+            var linea = textVar.Split(Environment.NewLine); // Environment.NewLine determina cuando salta la linea
+
+            ManejoDeArchivo.ActualizarArchivo(linea);
+            Snackbar.Add("Se guardaron lo cambios", Severity.Success);
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"No se realizo la accion. Error: {e.Message}",Severity.Error);
+        }
     }
 
     public void CargarListado()
@@ -393,9 +426,16 @@
             var ItemSeleccionado = lstAtributos.Where(x => x.NombreAtributo == atributo.NombreAtributo).FirstOrDefault();
             if (ItemSeleccionado != null)
             {
-
-                ItemSeleccionado.TipoDato = tipoDatoFinal;
-                ModificarTipo = false;
+                if (tipoDatoOtro == null)
+                {
+                    ItemSeleccionado.TipoDato = tipoDatoFinal;
+                    ModificarTipo = false;
+                }
+                else
+                {
+                    ItemSeleccionado.TipoDato = tipoDatoOtro.Value;
+                    ModificarTipo = false;
+                }
 
             }
         }
@@ -404,6 +444,11 @@
 
             Snackbar.Add($"Ocurrio un problema {e.Message}", Severity.Error);
         }
+        
+       
+
+
+        Console.WriteLine("Hola" + tipoDatoOtro);
         StateHasChanged();
     }
 
@@ -431,13 +476,6 @@
         atributo.IsExpanded = false;
     }
 
-    //Otro metodo para cargar un archivo
-    //public async void LoadFiles( IBrowserFile file)
-    //{
-    //    var reader = new StreamReader(file.OpenReadStream()); 
-    //    textVar = await reader.ReadToEndAsync();
-    //    Console.WriteLine(textVar);
-    //    StateHasChanged();
-    //}
+   
 
 }

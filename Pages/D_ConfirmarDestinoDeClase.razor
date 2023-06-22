@@ -52,14 +52,22 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     // Recibo la lista para usarla si lo deseo en el Dialog
     [Parameter] public List<Clase> ListaDeAtributos { get; set; }
+    [Parameter] public String NameSpace { get; set; }
     [Parameter] public String NombreClase { get; set; }
     [Parameter] public String Ruta{ get; set; }
+    [Parameter] public String NombreInterface { get; set; }
+    [Parameter] public Boolean SqlBase { get; set; }
+    [Parameter] public Boolean SqlInsert { get; set; }
+    [Parameter] public Boolean SqlUpdate { get; set; }
+    [Parameter] public Boolean SqlDelete { get; set; }
+    [Parameter] public Boolean SqlToString { get; set; }
+
 
     //string Ruta1 = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas";
     public void ProcesoDeClase()
     {
         //Método para crear archivo desde Clase Manejo de Archivo
-        ManejoDeArchivo.CrearArchivoDeClase(ListaDeAtributos, NombreClase, Ruta);
+        ManejoDeArchivo.CrearArchivoDeClase(ListaDeAtributos, NameSpace, NombreClase, Ruta, NombreInterface, SqlBase, SqlInsert, SqlUpdate, SqlDelete, SqlToString);
         MudDialog.Close(DialogResult.Ok(true));
     }
 
