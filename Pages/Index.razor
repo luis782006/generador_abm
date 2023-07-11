@@ -6,6 +6,8 @@
 @inject ISnackbar Snackbar
 @using System.IO;
 @using System.Text;
+@inject NavigationManager nav;
+@inject AuxService auxServcice;
 
 <PageTitle>Index</PageTitle>
 <MudPaper Class="d-flex justify-content-around px-1" Elevation="0">
@@ -94,7 +96,9 @@
                                   ></MudTextField>
                 </MudItem>
                 <MudItem style="display:flex; justify-content:center; align-items:flex-end; ">
-                    <MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" @onclick="Agregar">Agregar</MudButton>
+                    @*<MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" @onclick="Agregar">Agregar</MudButton>*@
+                    <MudButton Variant="Variant.Filled"  Color="Color.Primary" @onclick="Agregar">Agregar</MudButton>
+
                 </MudItem>
                 @*Grid de Opciones Consultas Sql*@
                     <MudGrid style="padding-left:0.6rem; padding-bottom:0.5rem; ">
@@ -115,11 +119,11 @@
         </MudPaper>
      
        <MudItem>
-          
-            <MudTextField T="string" @bind-Value="@textVar" style="padding-top:0px; padding-bottom:0px; background-color:#333131; color:white; width=60px; height=40px;" Lines="20" />
+            <MudText Typo="Typo.h6" style="margin-top:1rem; margin-bottom:0;"> Editar codigo</MudText>
+            <MudTextField T="string" @bind-Value="@textVar" style="padding-top:0px; padding-bottom:0px; border-radius:1rem; border:2px solid #594ae2; background-color:#333131; color:white; width=60px; height=40px;" Lines="20" />
        </MudItem>
-       <MudItem Class="d-flex justify-content-between">          
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" style="margin-top:2rem;" OnClick="GuardarCambios">Guardar cambios</MudButton>
+       <MudItem Class="d-flex justify-content-end">          
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" style="margin-top:2rem; border:1px solid " OnClick="GuardarConfirmarClase">Guardar y confirmar clase</MudButton>
        </MudItem>
 
     </MudItem>
@@ -131,7 +135,7 @@
             <MudPaper Height="3500px" Class="d-flex justify-content-center py-2" style="background-color:#F7F7F7; ">
                 
                     <MudList>
-                        @foreach (var atributo in lstAtributos)
+                        @foreach (var atributo in lstAtributosTest)
                         {
                             @*Se muestra todos los atributos del listado para mostrar*@
                             <MudExpansionPanels style="width:20rem; margin-bottom:0.8rem;">
@@ -151,7 +155,7 @@
                                         }
                                         else
                                         {
-                                            <MudSelect Class="col-12" TValue="DataType" @bind-Value="tipoDatoFinal" Variant="Variant.Outlined"  Margin="Margin.Dense" style="margin-bottom:0.4rem;">
+                                            <MudSelect Class="col-12" TValue="DataType" @bind-Value="tipoDatoFinal" Variant="Variant.Outlined" Margin="Margin.Dense" style="margin-bottom:0.4rem;">
                                                     @foreach (DataType dataType in Enum.GetValues(typeof(DataType)))
                                                     {
                                                     <MudSelectItem Value="dataType" >@dataType</MudSelectItem>
@@ -160,10 +164,8 @@
                                             </MudSelect>    
                                             
                                         }
-                                       
-
-                                                <MudTextField @bind-Value="@atributo.AceptaNull" Label="Acepta Nulos" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
-                                                <MudTextField @bind-Value="@atributo.ValorPorDefecto" Label="Valor por Defecto" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                            <MudTextField @bind-Value="@atributo.AceptaNull" Label="Acepta Nulos" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                            <MudTextField @bind-Value="@atributo.ValorPorDefecto" Label="Valor por Defecto" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
                                         </item>
 
                                             <MudItem Class="d-flex justify-content-between">
@@ -193,7 +195,11 @@
         @*Lista de la clase*@
        
             <MudItem style="display:flex; justify-content:center; align-items:center; margin-top:2rem;">
-            <MudButton Variant="Variant.Filled" Disabled="@successGeneradora" Color="Color.Primary" @onclick="GenerarAcrhivo">Generar Clase</MudButton>
+
+            @*<MudButton Variant="Variant.Filled" Disabled="@successGeneradora" Color="Color.Primary" @onclick="GenerarAcrhivo">Generar Clase</MudButton>*@
+
+            @*Se habilita boton para modo test*@
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="GenerarAcrhivo">Generar Clase</MudButton>
             </MudItem>
     </MudItem>
    
@@ -204,15 +210,7 @@
 
 @code
 {
-    /// <summary>
-    /// TODO
-    /// 
-    /// </summary>
-
-   
-
-
-
+ 
     //Para manejo de errores formulario
     MudForm form;
     bool success;
@@ -225,8 +223,8 @@
     private bool IsExpanded = false;
 
     //Para valores de formulario
-    public string NameSpace;
-    public string nombreClase;
+    public string NameSpace="ABM";
+    public string nombreClase="Persona";
     public string nombreInterface;
     public string atributo;
     public bool aceptaNull;
@@ -248,11 +246,17 @@
     //Instancia de clase
     Clase clase = new Clase();
     //Declaro un listado de Tipo Clase
-    List<Clase> lstAtributos = new List<Clase>();
+    
+    //lista para produccion
+    //List<Clase> lstAtributos = new List<Clase>();
+
+    //lista precargada
+    List<Clase> lstAtributosTest = new List<Clase>();
 
     // Variable para cargar el archivo
     public String[] readText = { };
-    string rutaArchivo = "";
+    string rutaArchivo = @"C:\Users\usuario\Documents\Luis\Archivos csv de pruebas";
+
 
     //manejo de archivo. 
     StringBuilder textArea = new System.Text.StringBuilder(); 
@@ -267,11 +271,22 @@
     private Clase? ItemDrag { get; set; }
 
     //Variables Boleanas para Consultas SQL
-    bool SQLBase = false;
-    bool SQLInsert=false;
-    bool SQLUpdate=false;
-    bool SQLDelete=false;
-    bool SQLToString=false;
+    bool SQLBase = true;
+    bool SQLInsert = true;
+    bool SQLUpdate = true;
+    bool SQLDelete = true;
+    bool SQLToString = true;
+    //para produccion
+    //bool SQLBase = false;
+    //bool SQLInsert=false;
+    //bool SQLUpdate=false;
+    //bool SQLDelete=false;
+    //bool SQLToString=false;
+
+    //Bool Habilitar ListaComponente del Menu
+
+    bool IsHabilitado = false;
+   
 
     public void Agregar()
     {
@@ -290,15 +305,14 @@
         DialogGenerador(opciones);
     }
 
-
-
     private async void DialogGenerador(DialogOptions options)
     {
 
         //variable de parametro para mostrar la clase en el Dialog del otro lado. Si uso de momento
         var parameters = new DialogParameters
         {
-            {"ListaDeAtributos", lstAtributos }, 
+             {"ListaDeAtributosTest", lstAtributosTest },
+            //{"ListaDeAtributos", lstAtributos }, 
             {"NameSpace", NameSpace},
             {"NombreClase",nombreClase},
             {"Ruta", rutaArchivo},
@@ -331,9 +345,9 @@
                 textVar = textArea.ToString();
 
                 File.SetAttributes(rutaArchivo1, FileAttributes.Normal);
-                
-                
+        
                 StateHasChanged();
+               
             }
             catch (Exception e)
             {
@@ -368,18 +382,21 @@
         {
             Console.WriteLine("");    
         }
-    Console.WriteLine("Hola");
+        Console.WriteLine("Hola");
     }
 
-    public void GuardarCambios()
+    public void GuardarConfirmarClase()
     {
-
         try
         {
             var linea = textVar.Split(Environment.NewLine); // Environment.NewLine determina cuando salta la linea
 
             ManejoDeArchivo.ActualizarArchivo(linea);
             Snackbar.Add("Se guardaron lo cambios", Severity.Success);
+
+  
+
+            auxServcice.ObtenerAtributos(lstAtributosTest, NameSpace, nombreClase, rutaArchivo);
         }
         catch (Exception e)
         {
@@ -388,14 +405,18 @@
     }
 
     public void CargarListado()
-    {
-        lstAtributos=clase.listaAtributos;
+    {   
+        //Para produccion
+        //lstAtributosTest=clase.listaAtributos;
+
+        //Para test
+        lstAtributosTest = clase.listaAtributosTest;
     }
 
     //Actualizar el atributo por su nuevo tipo de dato.
     public void ActualizarLst(Clase atributo)
     {
-        var ItemSeleccionado = lstAtributos.Where(x => x.NombreAtributo == atributo.NombreAtributo).FirstOrDefault();
+        var ItemSeleccionado = lstAtributosTest.Where(x => x.NombreAtributo == atributo.NombreAtributo).FirstOrDefault();
         if (ItemSeleccionado != null)
         {
             ItemSeleccionado.TipoDato = tipoDatoFinal;
@@ -413,7 +434,8 @@
 
     public void Eliminar(Clase atributo)
     {
-        lstAtributos.Remove(atributo);
+        //lstAtributos.Remove(atributo);
+        lstAtributosTest.Remove(atributo);
         StateHasChanged();
 
     }
@@ -423,17 +445,19 @@
         //Guardo modificacion del tipo de dato del atributo filtrando la lista
         try
         {
-            var ItemSeleccionado = lstAtributos.Where(x => x.NombreAtributo == atributo.NombreAtributo).FirstOrDefault();
+            var ItemSeleccionado = lstAtributosTest.Where(x => x.NombreAtributo == atributo.NombreAtributo).FirstOrDefault();
             if (ItemSeleccionado != null)
             {
                 if (tipoDatoOtro == null)
                 {
                     ItemSeleccionado.TipoDato = tipoDatoFinal;
+                    CargarListado();
                     ModificarTipo = false;
                 }
                 else
                 {
                     ItemSeleccionado.TipoDato = tipoDatoOtro.Value;
+                    CargarListado();
                     ModificarTipo = false;
                 }
 
@@ -444,11 +468,7 @@
 
             Snackbar.Add($"Ocurrio un problema {e.Message}", Severity.Error);
         }
-        
        
-
-
-        Console.WriteLine("Hola" + tipoDatoOtro);
         StateHasChanged();
     }
 
@@ -462,7 +482,7 @@
 
     private void OnDrop(Clase itemDrop)
     {
-        lstAtributos.Swap(itemDrop, ItemDrag);
+        lstAtributosTest.Swap(itemDrop, ItemDrag);
         ItemDrag.IsExpanded = false;
     }
 

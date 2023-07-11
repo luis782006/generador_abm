@@ -5,6 +5,14 @@
       "PackagePath": "staticwebassets\\Generador_ABM.bundle.scp.css"
     },
     {
+      "Id": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\wwwroot\\css\\MudForm.jpg",
+      "PackagePath": "staticwebassets\\css\\MudForm.jpg"
+    },
+    {
+      "Id": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\wwwroot\\css\\MudTableAccion.jpg",
+      "PackagePath": "staticwebassets\\css\\MudTableAccion.jpg"
+    },
+    {
       "Id": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
       "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
     },

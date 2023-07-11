@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "i8l9mfnV9Nw3d99XHAdDdvbpALorIcO51NqQxQru+SM=",
+  "Hash": "H8Au9Jo9IXsSfKi2LdieRxJFreK4FCmFo3XCKwP4mLM=",
   "Source": "Generador_ABM",
   "BasePath": "_content/Generador_ABM",
   "Mode": "Default",
@@ -117,6 +117,40 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Identity": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\wwwroot\\css\\MudForm.jpg",
+      "SourceId": "Generador_ABM",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\wwwroot\\",
+      "BasePath": "_content/Generador_ABM",
+      "RelativePath": "css/MudForm.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\MudForm.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\wwwroot\\css\\MudTableAccion.jpg",
+      "SourceId": "Generador_ABM",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\wwwroot\\",
+      "BasePath": "_content/Generador_ABM",
+      "RelativePath": "css/MudTableAccion.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\css\\MudTableAccion.jpg"
     },
     {
       "Identity": "C:\\Users\\usuario\\source\\repos\\GeneradorABM\\wwwroot\\css\\open-iconic\\font\\css\\open-iconic-bootstrap.min.css",

@@ -1,0 +1,261 @@
+﻿@page "/componenteLista"
+@using Generador_ABM.Data;
+@inject AuxService auxService;
+@using System.Reflection
+@using System.Text;
+
+        <MudText Typo="Typo.h4">@msg</MudText>
+        <MudForm @bind-IsValid="@success">
+
+            <MudGrid Class="d-flex align-center justify-content-between py-4" Style="padding:2rem;">
+                <MudItem sm="12" xl="4" md="6"  >
+                    <MudTextField T="string" @bind-text="@nombreComponente" 
+                                  Margin="Margin.Dense"
+                                  Label="Componente Razor"
+                                  Variant="Variant.Outlined"
+                                  Required="true"
+                                  RequiredError="Debe ingresar el nombre del componente"
+                                  HelperText="Ingrese el nombre del archivo" />
+                </MudItem>
+                <MudItem sm="12" xl="4" md="6">
+                    <MudTextField T="string" @bind-text="@link" 
+                                  Margin="Margin.Dense" 
+                                  Label="Page" 
+                                  Variant="Variant.Outlined"                             
+                                  HelperText="Ingrese el Link" />
+                </MudItem>
+                <MudItem>
+                </MudItem>
+            </MudGrid>
+        <MudGrid Class="d-flex flex-row align-start justify-content-between py-4" Style="padding:2rem;">
+            <MudItem Class="d-flex flex-column">
+        <MudText Typo="Typo.h5">Acciones sobre el Objeto de clase</MudText>
+            <MudCard Elevation="5">
+                <MudCardMedia Image="css/mudtableaccion.jpg" Class="rounded-lg" Height="150" />
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">Acciones</MudText>
+                    <MudText Typo="Typo.body2">Seleccione las acciones que desee sobre el registro</MudText>
+                    <MudItem Class="d-flex flex-row">
+                        <MudCheckBox @bind-Checked="@Ver" Color="Color.Primary">Ver </MudCheckBox>
+                        <MudCheckBox @bind-Checked="@Editar" Color="Color.Primary">  Editar</MudCheckBox>
+                        <MudCheckBox @bind-Checked="@Eliminar" Color="Color.Primary"> Eliminar </MudCheckBox>
+                    </MudItem>
+                   
+                </MudCardContent>
+                <MudCardActions Class="d-flex justify-content-center mt-4 ">
+                  
+                </MudCardActions>
+            </MudCard>
+           
+            </MudItem>
+        <MudItem Class="d-flex flex-column">
+        <MudText Typo="Typo.h5">Opciones de PopupDialog</MudText>
+            <MudCard Elevation="5">
+                <MudCardMedia Image="css/mudform.jpg" Height="180" Class="rounded-lg" />
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">Dialog</MudText>
+                    <MudText Typo="Typo.body2">Se añadiran todos los atributos del objeto según su tipo de dato</MudText>                   
+                    <MudText Typo="Typo.body2">Se presentaran todos los campos en una columna. Edite a su gusto</MudText>
+                    <MudText Typo="Typo.body1" Class="fw-bold">Indique los modos de uso del Popup</MudText>
+                    <MudItem Class="d-flex flex-row">
+                        <MudCheckBox @bind-Checked="@D_Ver" Color="Color.Primary">Ver </MudCheckBox>
+                        <MudCheckBox @bind-Checked="@D_Editar" Color="Color.Primary">  Editar</MudCheckBox>
+                        <MudCheckBox @bind-Checked="@D_Eliminar" Color="Color.Primary"> Eliminar </MudCheckBox>
+                    </MudItem>
+                </MudCardContent>
+                        
+                <MudCardActions Class="d-flex justify-content-center ">
+                    
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        </MudGrid>
+
+
+      
+    <MudGrid >
+        <MudItem xl="12" Class="d-flex justify-content-center">
+            @*Para produccion*@
+            @*<MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" style="margin-top:-22px; " OnClick="CrearArchivo">Guardar</MudButton>*@
+            <MudButton Variant="Variant.Filled"  Color="Color.Primary" style="margin-top:10px; " OnClick="CrearArchivo">Guardar</MudButton>
+        </MudItem>
+    </MudGrid>
+    </MudForm>
+                      
+
+@code {
+    string msg = "";
+    public string NameSpace;
+    public string NombreClase = "Persona"; // se pasan datos para test
+    string link = "listapersona"; // se pasan datos para test
+
+    string nombreObjetoRecibido = "";
+    int cantAtributos = 0;
+    public bool success = true;
+
+    List<Clase> Listado = new List<Clase>();
+    string Ruta = "";
+    //para produccion
+    //string nombreComponente = "";
+    //Para Test
+    string nombreComponente = "ListaPersona";
+    string nombreComponenteMasRuta = "";
+
+    //Opciones Crud sobre la clase objeto
+    bool Ver = false;
+    bool Editar = false;
+    bool Eliminar = false;
+
+    //Opciones De Modo para Popup
+    bool D_Ver = false;
+    bool D_Editar = false;
+    bool D_Eliminar = false;
+
+
+    List<string> ListaClaseDepurada =new List<string>();
+
+    protected override void OnInitialized()
+    {
+        List<string> Listado=CargaDeLista();
+
+    }
+
+    public List<string>  CargaDeLista()
+    {
+        Listado = auxService.Listado;
+        NombreClase = auxService.NombreClase;
+        NameSpace = auxService.NameSpace;
+
+        msg = "Crear componente razor para Listar clase";
+
+        if (NombreClase != null)
+        {
+            foreach (var item in Listado)
+            {
+                //Cargo una lista solo con el nombre de atributo
+                ListaClaseDepurada.Add(item.NombreAtributo.ToString());
+
+                Type ListadoAtributos = item.GetType();
+                PropertyInfo[] propiedadesListado = ListadoAtributos.GetProperties();
+
+                foreach (var propiedad in propiedadesListado)
+                {                    
+                    string valor = propiedad.GetValue(item)?.ToString();                                   
+
+                }
+
+            }
+        }
+        return ListaClaseDepurada;
+    }
+
+    public void GenerarCodigoPopup()
+    {
+        ///TODO
+        ///Hacer Funcion en ManejoComponenteLista para crear el codigo a nivel de Lista.razor para abrir el Popup.
+        ///Crear archivo popup. llevar el listado a este componente (Dialog) para que imprimir el codigo visual y @code. 
+        /// Presentar los atributos que de la clase y crear sus metodos. Segun las opciones D_Agregar,D_Eliminar,D_Ver,D_Actualizar.....
+        /// Crear los metodos para llamar a cada popup con los modos.
+
+        
+
+
+    }
+
+
+    // Crear el Archivo Razor
+    public void CrearArchivo()
+    {
+        // para test le mando la ruta directa 
+        // para produccion
+        //Ruta = auxService.Ruta;
+        nombreComponente = char.ToUpper(nombreComponente[0]) + nombreComponente.Substring(1);
+        // para test
+        nombreComponenteMasRuta = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas\\" + NombreClase + ".razor";
+        // Para produccion
+        //nombreComponenteMasRuta = $"{Ruta}\\{nombreComponente}.razor";
+
+        NombreClase = auxService.NombreClase;
+        string infoFormat = "{first_item}-{last_item} de {all_items}";
+        string filtros;
+        try
+        {
+            using (StreamWriter writer = new StreamWriter(nombreComponenteMasRuta))
+            {
+                StringBuilder sbuilder = new StringBuilder();
+
+                // Copiar el contenido del objeto `writer` al `StringBuilder`
+
+                //Desde el linea page hasta el NameSpace
+                sbuilder = ManejoComponenteLista.ImprimirInicio(sbuilder, NameSpace, link);
+
+                sbuilder = ManejoComponenteLista.ImprimolBarContent(sbuilder, NameSpace);
+
+                sbuilder.AppendLine("@* Cabecera de todos los atributos de la clase *@");
+                //Inicio del Header Table
+                sbuilder.AppendLine("\t\t<HeaderContent>");
+                // se imprime la cabacera del listado con los atributos de la clase
+                sbuilder=ManejoComponenteLista.ImprimirCabecera(Listado, sbuilder);
+                sbuilder.AppendLine("\t\t</HeaderContent >");
+
+                //se imprime las Acciones y cabeceras de Columnas
+                sbuilder.AppendLine("\t\t<RowTemplate>");
+
+                sbuilder.AppendLine("\t\t\t<MudTd Class=\"d-inline-flex justify-center\">");
+                sbuilder = ManejoComponenteLista.Acciones(Listado, sbuilder, Ver, Editar, Eliminar, NombreClase);
+                sbuilder.AppendLine("\t\t\t</MudTd>");
+                // se imprime las columnas
+                sbuilder = ManejoComponenteLista.ImprimirColumnas(Listado, sbuilder);
+
+                // cierre de lineas
+                sbuilder.AppendLine("\t\t</RowTemplate>");
+                sbuilder.AppendLine("\t\t<PagerContent>");
+                //PagerContent
+
+                //Paginador
+                sbuilder = ManejoComponenteLista.ImprimirPaginador(sbuilder, infoFormat);
+
+                //Inicio CODE @code
+                sbuilder = ManejoComponenteLista.ImprimirVariable(sbuilder, NombreClase);
+                
+                //Metodo OnInitializedAsync
+                sbuilder = ManejoComponenteLista.MetodoCargaLista(NombreClase, sbuilder);
+
+                //Funciones de Filtro de Table
+                sbuilder = ManejoComponenteLista.MetodoFiltro(NombreClase, Listado,sbuilder);
+
+                //Funcion Buscar de Table
+                sbuilder = ManejoComponenteLista.MetodoBuscar(sbuilder);
+
+
+
+
+                /// <summary>
+                /// TODO          
+                /// Agregar el de Agregar en las opciones de Popup
+                /// </summary>
+                /// 
+
+
+
+                // cierre de todo el archivo
+                sbuilder.AppendLine("}");
+
+                
+
+                //Escribo toda la cadena
+                writer.Write(sbuilder.ToString());
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+
+        }
+        nombreComponenteMasRuta = null;
+    }
+
+      
+}
+
+

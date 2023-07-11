@@ -2,42 +2,18 @@
 @using Generador_ABM;
 
 <MudDialog>
-    <DialogContent>     
-        <MudText Typo="Typo.subtitle1">Eliga sobre las siguientes opciones</MudText>
-        <MudGrid>
-            <MudItem>
-                <MudPaper Class="pe-8" Elevation="2">
-                    <MudTooltip Text="@txtSqlBase">
-                         <MudCheckBox @bind-Checked="@SQLBase" Size="Size.Large" Label="Base" Color="Color.Primary"></MudCheckBox>
-                    </MudTooltip>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
-
+    <DialogContent>
+        Dialog Content
     </DialogContent>
-
     <DialogActions>
-        <MudButton Variant="Variant.Outlined" OnClick="Cancel" Color="Color.Primary">Cancel</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Submit">Aceptar</MudButton>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
     </DialogActions>
 </MudDialog>
-
-
-
-
 @code {
-    // Dialog y parametros necesarios para ejecutar procedimientos
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    // Recibo la lista para usarla si lo deseo en el Dialog
-    //[Parameter] public String NameSpace { get; set; }
-
-    // Variables Sql
-    bool SQLBase=false;
-    string txtSqlBase=" SELECT ExpedienteID, Numero, Año, Letra, Iniciador, Asunto, Fojas, Observaciones," +
-                                "FK_Expediente_Ubicacion" +
-                                "FROM Expediente";
 
     void Submit() => MudDialog.Close(DialogResult.Ok(true));
-
     void Cancel() => MudDialog.Cancel();
+}
 }

@@ -1,4 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using Generador_ABM.Data;
+@inherits LayoutComponentBase
+@inject AuxService auxService;
+
 <MudThemeProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -6,7 +9,7 @@
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <NavMenu/>
     </div>
 
     <main>
@@ -19,3 +22,12 @@
         </article>
     </main>
 </div>
+@code
+{
+
+   
+
+   
+
+    
+}

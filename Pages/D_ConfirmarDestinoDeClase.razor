@@ -1,8 +1,11 @@
 ﻿@using Generador_ABM.Data;
 @using Generador_ABM;
+@inject ISnackbar Snackbar
 
+   @* Para produccion @if (ListaDeAtributos.Count() == 0)*@
 
-    @if (ListaDeAtributos.Count() == 0)
+   @*Para Test*@
+    @if (ListaDeAtributosTest.Count() == 0)
     {
     <MudDialog>
             <DialogContent>
@@ -51,7 +54,13 @@
     // Dialog y parametros necesarios para ejecutar procedimientos
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     // Recibo la lista para usarla si lo deseo en el Dialog
-    [Parameter] public List<Clase> ListaDeAtributos { get; set; }
+
+    // Para produccion
+    //[Parameter] public List<Clase> ListaDeAtributos { get; set; }
+
+    //Para test
+    //[Parameter] public List<Clase> ListaDeAtributos { get; set; }
+    [Parameter] public List<Clase> ListaDeAtributosTest { get; set; }
     [Parameter] public String NameSpace { get; set; }
     [Parameter] public String NombreClase { get; set; }
     [Parameter] public String Ruta{ get; set; }
@@ -63,12 +72,21 @@
     [Parameter] public Boolean SqlToString { get; set; }
 
 
-    //string Ruta1 = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas";
+    //sring Ruta1 = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas";
     public void ProcesoDeClase()
     {
         //Método para crear archivo desde Clase Manejo de Archivo
-        ManejoDeArchivo.CrearArchivoDeClase(ListaDeAtributos, NameSpace, NombreClase, Ruta, NombreInterface, SqlBase, SqlInsert, SqlUpdate, SqlDelete, SqlToString);
-        MudDialog.Close(DialogResult.Ok(true));
+        try
+        {
+            //modificar la lista de ListaDeAtributosTest  a  ListaDeAtributos
+            ManejoDeArchivo.CrearArchivoDeClase(ListaDeAtributosTest, NameSpace, NombreClase, Ruta, NombreInterface, SqlBase, SqlInsert, SqlUpdate, SqlDelete, SqlToString);
+            MudDialog.Close(DialogResult.Ok(true));
+
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add("No se pudo realizar la accion " + e.Message, Severity.Error);            
+        }
     }
 
         
