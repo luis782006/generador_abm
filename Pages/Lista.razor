@@ -3,6 +3,7 @@
 @inject AuxService auxService;
 @using System.Reflection
 @using System.Text;
+@inject ISnackbar Snackbar
 
         <MudText Typo="Typo.h4">@msg</MudText>
         <MudForm @bind-IsValid="@success">
@@ -48,24 +49,19 @@
             </MudCard>
            
             </MudItem>
+     
         <MudItem Class="d-flex flex-column">
-        <MudText Typo="Typo.h5">Opciones de PopupDialog</MudText>
+            <MudText Typo="Typo.h5">Crear componente Dialog</MudText>
             <MudCard Elevation="5">
                 <MudCardMedia Image="css/mudform.jpg" Height="180" Class="rounded-lg" />
                 <MudCardContent>
                     <MudText Typo="Typo.h5">Dialog</MudText>
-                    <MudText Typo="Typo.body2">Se añadiran todos los atributos del objeto según su tipo de dato</MudText>                   
-                    <MudText Typo="Typo.body2">Se presentaran todos los campos en una columna. Edite a su gusto</MudText>
-                    <MudText Typo="Typo.body1" Class="fw-bold">Indique los modos de uso del Popup</MudText>
-                    <MudItem Class="d-flex flex-row">
-                        <MudCheckBox @bind-Checked="@D_Ver" Color="Color.Primary">Ver </MudCheckBox>
-                        <MudCheckBox @bind-Checked="@D_Editar" Color="Color.Primary">  Editar</MudCheckBox>
-                        <MudCheckBox @bind-Checked="@D_Eliminar" Color="Color.Primary"> Eliminar </MudCheckBox>
-                    </MudItem>
+                    <MudText Typo="Typo.body2">Se crea el archivo Dialog listando todos los campos</MudText>
+                    <MudText Typo="Typo.body2">Personaliza el front de ser necesario</MudText> 
+                    <MudText Typo="Typo.body2" Class="fw-bold fs-6" > <MudIcon Icon="@Icons.Material.Filled.Campaign" />  Nombre de componente a crear</MudText>
+                    <MudText Typo="Typo.body2" Class="fw-bold fs-5"> D_@NombreClase</MudText>
                 </MudCardContent>
-                        
                 <MudCardActions Class="d-flex justify-content-center ">
-                    
                 </MudCardActions>
             </MudCard>
         </MudItem>
@@ -100,6 +96,8 @@
     //Para Test
     string nombreComponente = "ListaPersona";
     string nombreComponenteMasRuta = "";
+    // Solo para Test revisar variable para produccion
+    string nombreComponentePopMasRuta = "";
 
     //Opciones Crud sobre la clase objeto
     bool Ver = false;
@@ -108,6 +106,7 @@
 
     //Opciones De Modo para Popup
     bool D_Ver = false;
+    bool D_Insertar = false;
     bool D_Editar = false;
     bool D_Eliminar = false;
 
@@ -157,7 +156,7 @@
         /// Presentar los atributos que de la clase y crear sus metodos. Segun las opciones D_Agregar,D_Eliminar,D_Ver,D_Actualizar.....
         /// Crear los metodos para llamar a cada popup con los modos.
 
-        
+
 
 
     }
@@ -172,6 +171,7 @@
         nombreComponente = char.ToUpper(nombreComponente[0]) + nombreComponente.Substring(1);
         // para test
         nombreComponenteMasRuta = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas\\" + NombreClase + ".razor";
+        nombreComponentePopMasRuta = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas\\D_" + NombreClase + ".razor";
         // Para produccion
         //nombreComponenteMasRuta = $"{Ruta}\\{nombreComponente}.razor";
 
@@ -189,7 +189,7 @@
                 //Desde el linea page hasta el NameSpace
                 sbuilder = ManejoComponenteLista.ImprimirInicio(sbuilder, NameSpace, link);
 
-                sbuilder = ManejoComponenteLista.ImprimolBarContent(sbuilder, NameSpace);
+                sbuilder = ManejoComponenteLista.ImprimolBarContent(sbuilder, NombreClase);
 
                 sbuilder.AppendLine("@* Cabecera de todos los atributos de la clase *@");
                 //Inicio del Header Table
@@ -217,7 +217,7 @@
 
                 //Inicio CODE @code
                 sbuilder = ManejoComponenteLista.ImprimirVariable(sbuilder, NombreClase);
-                
+
                 //Metodo OnInitializedAsync
                 sbuilder = ManejoComponenteLista.MetodoCargaLista(NombreClase, sbuilder);
 
@@ -227,33 +227,79 @@
                 //Funcion Buscar de Table
                 sbuilder = ManejoComponenteLista.MetodoBuscar(sbuilder);
 
+                //Funcion para abir Popup en Modo Agregar
 
-
-
-                /// <summary>
-                /// TODO          
-                /// Agregar el de Agregar en las opciones de Popup
-                /// </summary>
-                /// 
-
-
+                sbuilder = ManejoComponenteLista.ImprimirAccionDialog(sbuilder, NombreClase);
 
                 // cierre de todo el archivo
-                sbuilder.AppendLine("}");
-
-                
+                sbuilder.AppendLine("}");                
 
                 //Escribo toda la cadena
                 writer.Write(sbuilder.ToString());
+
             }
+            Snackbar.Add($"Se creo el archivo .razor Lista{NombreClase}", Severity.Success);
+
+
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
-
+            //Console.WriteLine(e.Message);
+            Snackbar.Add($"No se pudo crear el archivo .razor Lista{NombreClase} "+ e.Message, Severity.Error);
         }
         nombreComponenteMasRuta = null;
+
+
+        //CREAR DIALOG SECCIONADO 
+        try
+        {
+            using (StreamWriter writerPop = new StreamWriter(nombreComponentePopMasRuta))
+            {
+                StringBuilder sbuilderPop = new StringBuilder();
+                // Se imprime los using y inject necesarios
+                sbuilderPop=ManejoComponenteLista.ImprimirInicio(sbuilderPop, NameSpace, link = "");
+
+
+                // Se imprime el DialogCOntent de MudDialog y el Form Listando los atributos, 
+                sbuilderPop.AppendLine("<MudDialog>");              
+                sbuilderPop = ManejoComponentePopup.ImprimirDialogContentForm(sbuilderPop,Listado,NombreClase);
+
+                //Se imprime el DialogActions de MudDialog
+                sbuilderPop = ManejoComponentePopup.ImprimirDialogActions(sbuilderPop);
+
+                //Fin MudDialog
+                sbuilderPop.AppendLine("</MudDialog>");
+
+                // Inicio de @CODE
+                sbuilderPop.AppendLine("@code {");
+                //Se imprime variable
+                sbuilderPop = ManejoComponentePopup.ImprimirDialogVariable(sbuilderPop,NombreClase);
+
+                // Se imprime Metodo OnInitilized para cargar el objeto
+                sbuilderPop = ManejoComponentePopup.ImprimirMetodoOnInitialized(sbuilderPop,NombreClase,Listado);
+
+                // Se imprime Metodo de cancelacion
+                sbuilderPop = ManejoComponentePopup.ImprimirMetodoCancelacion(sbuilderPop);
+
+                // Fin de @CODE
+                sbuilderPop.AppendLine("}");
+
+                writerPop.Write(sbuilderPop.ToString());
+            }
+
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add($"No se pudo crear el archivo Dialog.razor Lista{NombreClase} " + e.Message, Severity.Error);
+        }
+
+        Snackbar.Add($"Se creo el archivo .razor Lista{NombreClase}", Severity.Success);
+
+
+
+
     }
+
 
       
 }

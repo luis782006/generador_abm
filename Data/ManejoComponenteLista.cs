@@ -8,7 +8,7 @@ namespace Generador_ABM.Data
 {
     public class ManejoComponenteLista
     {
-        public static StringBuilder ImprimirInicio(StringBuilder objSBuilder, string NameSpace,string link)
+        public static StringBuilder ImprimirInicio(StringBuilder objSBuilder, string NameSpace,string link="")
         {
             StringBuilder SBuilder = objSBuilder;
 
@@ -16,9 +16,10 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine("using System;");
             SBuilder.AppendLine();
             SBuilder.AppendLine("@using System.Threading;");
-            SBuilder.AppendLine("@inject NavigationManager nav");
-            SBuilder.AppendLine("@inject IDialogService DialogService");
-            SBuilder.AppendLine("@implements IDisposable");
+            SBuilder.AppendLine("@inject IDataAccess db;");
+            SBuilder.AppendLine("@inject NavigationManager nav;");
+            SBuilder.AppendLine("@inject IDialogService DialogService;");
+            SBuilder.AppendLine("@implements IDisposable;");
             SBuilder.AppendLine($"namespace {NameSpace}");
 
             return SBuilder;
@@ -31,7 +32,7 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine($"<MudTable Items={NombreClase} Dense=\"true\" Hover=\"true\" Bordered=\"false\" Striped=\"true\" @ref=\"table\" FixedHeader=\"true\" Filter=\"new Func<{NombreClase},bool>(FilterFunc1)\" ");
             SBuilder.AppendLine("\t <ToolBarContent>");
             SBuilder.AppendLine("\t\t <MudTextField T=\"string\" @bind-Value=\"searchString1\" style=\"width: 300px;\" Placeholder=\"Buscar...\" Adornment=\"Adornment.Start\" AdornmentIcon=\"@Icons.Material.Filled.Search\" IconSize=\"Size.Medium\" Class=\"mt-0\"></MudTextField>");
-            SBuilder.AppendLine($"\t\t\t<MudTooltip Text=\"Agregar {NombreClase}\"><MudFab Size=\"Size.Small\" Variant=\"Variant.Filled\" Icon=\"@Icons.Material.Filled.Add\" Color=\"Color.Success\" OnClick=\"@(e) => NuevoVExpediente(maxWidth))\" /></MudTooltip>");
+            SBuilder.AppendLine($"\t\t\t<MudTooltip Text=\"Agregar {NombreClase}\"><MudFab Size=\"Size.Small\" Variant=\"Variant.Filled\" Icon=\"@Icons.Material.Filled.Add\" Color=\"Color.Success\" OnClick=\"@((e) => Accion{NombreClase}(maxWidth,\"Insertar\",0))\" /></MudTooltip>");
             SBuilder.AppendLine("\t</ToolBarContent>");
 
             return SBuilder;
@@ -51,6 +52,7 @@ namespace Generador_ABM.Data
             }
             return SBuilder;
         }
+
         public static StringBuilder Acciones(List<Clase> Listado, StringBuilder objSBuilder, bool ver,bool editar,bool eliminar,string NombreClase)
         {
             StringBuilder SBuilder = objSBuilder;
@@ -58,19 +60,19 @@ namespace Generador_ABM.Data
             if (ver)
             {
                 SBuilder.AppendLine($"\t\t\t<MudTooltip Text = \"Ver {NombreClase}\">");
-                SBuilder.AppendLine($"\t\t\t\t<MudIconButton Size=\"Size.Small\" Icon=\"@Icons.Material.Filled.History\" Color=\"Color.Info\" OnClick=\"@((e) => Ver{NombreClase}(maxWidth,@context.{Listado[0].NombreAtributo}))\" />");
+                SBuilder.AppendLine($"\t\t\t\t<MudIconButton Size=\"Size.Small\" Icon=\"@Icons.Material.Filled.History\" Color=\"Color.Info\" OnClick=\"@((e) => Accion{NombreClase}(maxWidth,\"Ver\",@context.{Listado[0].NombreAtributo}))\" />");
                 SBuilder.AppendLine("\t\t\t</MudTooltip>");
             }
             if (editar)
             {
                 SBuilder.AppendLine($"\t\t\t<MudTooltip Text = \"Editar {NombreClase}\">");
-                SBuilder.AppendLine($"\t\t\t\t<MudIconButton Size=\"Size.Small\" Icon=\"@Icons.Material.Filled.History\" Color=\"Color.Info\" OnClick=\"@((e) => Editar{NombreClase}(maxWidth,@context.{Listado[0].NombreAtributo}))\" />");
+                SBuilder.AppendLine($"\t\t\t\t<MudIconButton Size=\"Size.Small\" Icon=\"@Icons.Material.Filled.History\" Color=\"Color.Info\" OnClick=\"@((e) => Accion{NombreClase}(maxWidth,\"Editar\"@context.{Listado[0].NombreAtributo}))\" />");
                 SBuilder.AppendLine("\t\t\t</MudTooltip>");
             }
             if (eliminar)
             {
                 SBuilder.AppendLine($"\t\t\t<MudTooltip Text = \"Eliminar {NombreClase}\">");
-                SBuilder.AppendLine($"\t\t\t<MudIconButton Disabled=\"@SoloLeer(@context.TipoEstado)\"  Size=\"Size.Small\" Icon=\"@Icons.Material.Filled.DriveFileMove\" Color=\"Color.Error\" OnClick=\"@((e) => Eliminar{NombreClase}(maxWidth,@context.{Listado[0].NombreAtributo}");
+                SBuilder.AppendLine($"\t\t\t<MudIconButton Size=\"Size.Small\" Icon=\"@Icons.Material.Filled.DriveFileMove\" Color=\"Color.Error\" OnClick=\"@((e) => Accion{NombreClase}(maxWidth,\"Eliminar\",@context.{Listado[0].NombreAtributo}");
                 SBuilder.AppendLine("\t\t\t</MudTooltip>");
             }
 
@@ -113,7 +115,8 @@ namespace Generador_ABM.Data
             sBuilder.AppendLine("");
             sBuilder.AppendLine($"\t\t private bool FilterFunc({NombreClase} element, string searchString) ");
             sBuilder.Append("\t\t {");
-            sBuilder.AppendLine("\t\t if (string.IsNullOrWhiteSpace(searchString))");
+            sBuilder.AppendLine("");
+            sBuilder.AppendLine("\t\t\t if (string.IsNullOrWhiteSpace(searchString))");
             sBuilder.AppendLine("\t\t\t return true;  ");
              foreach (Clase item in Listado)
             {
@@ -172,5 +175,50 @@ namespace Generador_ABM.Data
 
             return SBuilder;
         }
+
+        public static StringBuilder ImprimirAccionDialog(StringBuilder sbuilder, string NombreClase)
+        {
+            StringBuilder SBuilder = sbuilder;
+
+            SBuilder.AppendLine($"\t\t private async void Accion{NombreClase}(DialogOptions options,ModoEdicion Modo,long ID)");
+            SBuilder.AppendLine("\t\t {");
+            SBuilder.AppendLine("\t\t\t var parameters = new DialogParameters();");
+            SBuilder.AppendLine("\t\t\t parameters.Add(\"'ID'\", ID);");
+            SBuilder.AppendLine($"\t\t\t parameters.Add(\"Modo\", ModoEdicion.Modo);");
+            SBuilder.AppendLine($"\t\t\t var dialog = DialogService.Show<D_{NombreClase}>(\"\", parameters, options);");
+            SBuilder.AppendLine("\t\t\t var result = await dialog.Result;");
+            SBuilder.AppendLine("\t\t\t if (!result.Cancelled)");
+            SBuilder.AppendLine("\t\t\t {");          
+            SBuilder.AppendLine($"\t\t\t\t Lista{NombreClase} = await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
+            SBuilder.AppendLine("\t\t\t\t StateHasChanged()");
+
+            SBuilder.AppendLine("\t\t\t }");
+            SBuilder.AppendLine("\t\t }");
+
+            return SBuilder;
+        }
+
+        //public static StringBuilder ImprimirMetodoActualizar(StringBuilder sbuilder, string NombreClase,string ModoEdicion)
+        //{
+        //    StringBuilder SBuilder = sbuilder;
+
+        //    SBuilder.AppendLine("\t\t private async void Agregar(DialogOptions options, long ID)");
+        //    SBuilder.AppendLine("\t\t {");
+        //    SBuilder.AppendLine("\t\t\t var parameters = new DialogParameters();");
+        //    SBuilder.AppendLine("\t\t\t parameters.Add(\"'ID'\", ID);");
+        //    SBuilder.AppendLine($"\t\t\t parameters.Add(\"Modo\", ModoEdicion.{ModoEdicion});");
+        //    SBuilder.AppendLine($"\t\t\t var dialog = DialogService.Show<D_{NombreClase}>(\"\", parameters, options);");
+        //    SBuilder.AppendLine("\t\t\t var result = await dialog.Result;");
+        //    SBuilder.AppendLine("\t\t\t if (!result.Cancelled)");
+        //    SBuilder.AppendLine("\t\t\t {");
+        //    SBuilder.AppendLine($"\t\t\t\t Lista{NombreClase} = await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
+        //    SBuilder.AppendLine("\t\t\t\t StateHasChanged()");
+
+        //    SBuilder.AppendLine("\t\t\t }");
+        //    SBuilder.AppendLine("\t\t }");
+
+
+        //    return SBuilder;
+        //}
     }
 }
