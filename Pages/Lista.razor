@@ -151,10 +151,7 @@
     public void GenerarCodigoPopup()
     {
         ///TODO
-        ///Hacer Funcion en ManejoComponenteLista para crear el codigo a nivel de Lista.razor para abrir el Popup.
-        ///Crear archivo popup. llevar el listado a este componente (Dialog) para que imprimir el codigo visual y @code. 
-        /// Presentar los atributos que de la clase y crear sus metodos. Segun las opciones D_Agregar,D_Eliminar,D_Ver,D_Actualizar.....
-        /// Crear los metodos para llamar a cada popup con los modos.
+
 
 
 
@@ -277,6 +274,12 @@
 
                 // Se imprime Metodo OnInitilized para cargar el objeto
                 sbuilderPop = ManejoComponentePopup.ImprimirMetodoOnInitialized(sbuilderPop,NombreClase,Listado);
+
+                //Se imprime Metodo de Insertar(Funcion invocada desde el swicth del Objeto Final)
+                sbuilderPop = ManejoComponentePopup.MetodoInsertar(sbuilderPop, NombreClase);
+                
+                //Se imprime Metodo Botones para Mostrar y renombrarlos
+                sbuilderPop = ManejoComponentePopup.ImprimirMetodoBotones(sbuilderPop);
 
                 // Se imprime Metodo de cancelacion
                 sbuilderPop = ManejoComponentePopup.ImprimirMetodoCancelacion(sbuilderPop);

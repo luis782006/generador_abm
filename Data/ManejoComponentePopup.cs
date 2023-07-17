@@ -93,17 +93,18 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine("\t\t\t <MudButton OnClick=\"Cancelar\" ");
             SBuilder.AppendLine("\t\t\t\t Color=\"Color.Warning\"");
             SBuilder.AppendLine("\t\t\t\t Variant=\"Variant.Outlined\"");
-            SBuilder.AppendLine("\t\t\t\t StartIcon=\"@Icons.Filled.Cancel\">Cancelar");
+            SBuilder.AppendLine("\t\t\t\t StartIcon=\"@Icons.Filled.Cancel\">");
+            SBuilder.AppendLine($"\t\t @TituloBotonCancelar");
             SBuilder.AppendLine("\t\t\t </MudButton>");
             SBuilder.AppendLine("\t\t }");
             SBuilder.AppendLine("");
 
             //Boton según valor de parametro de ModoEdicion. Tener en cuenta si llega Id<>0 boton text sera Actualizar o Eliminar. Si ModoEdicion Ver entonces ocultar botón 
-            SBuilder.AppendLine("\t\t <MudButton  @onclick=\"@((e)=>guardarNotificacion())\"");
+            SBuilder.AppendLine("\t\t <MudButton  @onclick=\"@((e)=>AccionModo())\"");
             SBuilder.AppendLine("\t\t\t Color=\"Color.Success\"");
             SBuilder.AppendLine("\t\t\t Variant=\"Variant.Filled\"");
             SBuilder.AppendLine("\t\t\t StartIcon=\"@Icons.Material.Filled.Save\">");
-            SBuilder.AppendLine($"\t\t @TituloBotonCancelar");
+            SBuilder.AppendLine($"\t\t @TituloBotonAccion");
             SBuilder.AppendLine("\t\t </MudButton>");
             SBuilder.AppendLine("</DialogActions>");
 
@@ -134,25 +135,178 @@ namespace Generador_ABM.Data
             StringBuilder SBuilder = sbuilder;
 
             SBuilder.AppendLine("");
-            SBuilder.AppendLine("//Cargar Formulario. ModoEdicion Ver");
-            SBuilder.AppendLine("\t protected override async Task OnInitializedAsync()");
+            SBuilder.AppendLine("//Cargar Formulario.Ejecucion de codigo por Modo recibido");
+            SBuilder.AppendLine(" protected override async Task OnInitializedAsync()");
             SBuilder.AppendLine("\t {");
-            SBuilder.AppendLine("\t\t if (Modo == ModoEdicion.Ver)");
-            SBuilder.AppendLine("\t\t {");
-            SBuilder.AppendLine("\t\t IsModoVer=\"true\"");
-            SBuilder.AppendLine("\t\t TituloBotonCancelar=\"Cerrar\"");
-            SBuilder.AppendLine($"\t\t\t var {NombreClase.ToLower()}Query=await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase + ");
+            SBuilder.AppendLine("\t\t switch (Modo)");
+            SBuilder.AppendLine("\t\t { ");
+            // Codigo para el modo Ver
+            SBuilder.AppendLine("\t\t //ModoEdicion Ver");
+            SBuilder.AppendLine("\t\t\t case \"Ver\":");
+            SBuilder.AppendLine("\t\t\t\t Botones(Modo,IsModoVer,TituloBotonCancelar);");
+            SBuilder.AppendLine($"\t\t\t\t var {NombreClase.ToLower()}Query=await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase + ");
             SBuilder.AppendLine($"\t\t\t\t\t\t\t\t\t\t\t \" Where {Listado[0].NombreAtributo} = @{Listado[0].NombreAtributo}\", new {Listado[0].NombreAtributo} = ID );");
+            SBuilder.AppendLine($"\t\t\t\t {NombreClase.ToLower()}={NombreClase.ToLower()}Query.FirstOrDefault();");
+            SBuilder.AppendLine("\t\t\t\t // Agregue codigo para usar el objeto");
+            SBuilder.AppendLine("\t\t\t\t break;");
             SBuilder.AppendLine("");
-            SBuilder.AppendLine($"\t\t\t {NombreClase.ToLower()}={NombreClase.ToLower()}Query.FirstOrDefault();");
-            SBuilder.Append("\t\t // Agregue codigo para usar el objeto");
-            SBuilder.AppendLine("\t\t\t }");
-            SBuilder.AppendLine("\t\t }");
-            SBuilder.AppendLine("\t }");
+            string[] ModoAImripir = new string[] {"Insertar","Editar","Eliminar"};
+            for (int i = 0; i < 3; i++)
+            {
+                SBuilder.AppendLine($"\t\t // ModoEdicion {ModoAImripir[i]}");
+                SBuilder.AppendLine($"\t\t\t case \"{ModoAImripir[i]}\":");
+                SBuilder.AppendLine("\t\t\t\t Botones(Modo,IsModoVer,TituloBotonCancelar);");
+                SBuilder.AppendLine("\t\t\t\t // Agregue el codigo si es necesario");
+                SBuilder.AppendLine();
+                SBuilder.AppendLine("\t\t\t\t break;");
+            }
 
+            //// Codigo para el modo insertar
+            //SBuilder.AppendLine("\t\t // ModoEdicion Insertar");
+            //SBuilder.AppendLine("\t\t\t case \"Insertar\":");
+            //SBuilder.AppendLine("\t\t\t\t Botones(Modo,IsModoVer,TituloBotonCancelar);");            
+            //SBuilder.AppendLine();
+            //SBuilder.AppendLine("\t\t\t\t break;");
+            //// Codigo para Editar
+            //SBuilder.AppendLine("\t\t // ModoEdicion Editar");
+            //SBuilder.AppendLine("\t\t\t case \"Editar\":");
+            //SBuilder.AppendLine("\t\t\t\t Botones(Modo,IsModoVer,TituloBotonCancelar);");
+            //SBuilder.AppendLine();
+            //SBuilder.AppendLine("\t\t\t\t break;");
+            //// Codigo para Eliminar
+            //SBuilder.AppendLine("\t\t // ModoEdicion Editar");
+            //SBuilder.AppendLine("\t\t\t case \"Eliminar\":");
+            //SBuilder.AppendLine("\t\t\t\t Botones(Modo,IsModoVer,TituloBotonCancelar);");
+            //SBuilder.AppendLine();
+            //SBuilder.AppendLine("\t\t\t\t break;");
+
+            // Codigo default si es necesario
+            SBuilder.AppendLine("\t\t\tdefault:");
+            SBuilder.AppendLine("\t\t\t\t //Agregue código para el caso por defecto");
+            SBuilder.AppendLine("\t\t\t\t break;");
+            SBuilder.AppendLine("\t\t\t }");
+            SBuilder.AppendLine("\t}");
 
             return SBuilder;
         }
+        public static StringBuilder MetodoAccionModo(StringBuilder sbuilder, string NombreClase)
+        {
+            StringBuilder SBuilder = sbuilder;
+
+            SBuilder.AppendLine("");
+            SBuilder.AppendLine("\t\t// Método para accionar por Modo");
+            SBuilder.AppendLine("\t\tpublic async void AccionModo()");
+            SBuilder.AppendLine("\t\t{");
+            SBuilder.AppendLine("\t\t\tswitch (Modo)");
+            SBuilder.AppendLine("\t\t\t{");
+            // Método Insertar
+            SBuilder.AppendLine("\t\t\t\tcase \"Insertar\":");
+            SBuilder.AppendLine("\t\t\t\t\ttry");
+            SBuilder.AppendLine("\t\t\t\t\t{");
+            SBuilder.AppendLine($"\t\t\t\t\t\tawait db.EjecutarQueryAsync<{NombreClase}>({NombreClase}.QueryInsert, {NombreClase.ToLower()});");
+            SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog.Close(DialogResult.Ok(true));");
+            SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Se guardó correctamente\", Severity.Success);");
+            SBuilder.AppendLine("\t\t\t\t\t}");
+            SBuilder.AppendLine("\t\t\t\t\tcatch (Exception e)");
+            SBuilder.AppendLine("\t\t\t\t\t{");
+            SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Error al ejecutar la inserción\", Severity.Error);");
+            SBuilder.AppendLine("\t\t\t\t\t\tLog.Error(e.Message);");
+            SBuilder.AppendLine("\t\t\t\t\t}");
+            SBuilder.AppendLine("\t\t\t\t\tbreak;");
+            // Método Editar
+            SBuilder.AppendLine("\t\t\t\tcase \"Editar\":");
+            SBuilder.AppendLine("\t\t\t\t\ttry");
+            SBuilder.AppendLine("\t\t\t\t\t{");
+            SBuilder.AppendLine($"\t\t\t\t\t\tawait db.EjecutarQueryAsync<{NombreClase}>({NombreClase}.QueryUpdate, {NombreClase.ToLower()});");
+            SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog.Close(DialogResult.Ok(true));");
+            SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Se editó correctamente\", Severity.Success);");
+            SBuilder.AppendLine("\t\t\t\t\t}");
+            SBuilder.AppendLine("\t\t\t\t\tcatch (Exception e)");
+            SBuilder.AppendLine("\t\t\t\t\t{");
+            SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Error al ejecutar la actualización\", Severity.Error);");
+            SBuilder.AppendLine("\t\t\t\t\t\tLog.Error(e.Message);");
+            SBuilder.AppendLine("\t\t\t\t\t}");
+            SBuilder.AppendLine("\t\t\t\t\tbreak;");
+            // Método Eliminar
+            SBuilder.AppendLine("\t\t\t\tcase \"Eliminar\":");
+            SBuilder.AppendLine("\t\t\t\t\ttry");
+            SBuilder.AppendLine("\t\t\t\t\t{");
+            SBuilder.AppendLine($"\t\t\t\t\t\tawait db.EjecutarQueryAsync<{NombreClase}>({NombreClase}.QueryDelete, {NombreClase.ToLower()});");
+            SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog.Close(DialogResult.Ok(true));");
+            SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Se eliminó correctamente\", Severity.Success);");
+            SBuilder.AppendLine("\t\t\t\t\t}");
+            SBuilder.AppendLine("\t\t\t\t\tcatch (Exception e)");
+            SBuilder.AppendLine("\t\t\t\t\t{");
+            SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Error al ejecutar la eliminación\", Severity.Error);");
+            SBuilder.AppendLine("\t\t\t\t\t\tLog.Error(e.Message);");
+            SBuilder.AppendLine("\t\t\t\t\t}");
+            SBuilder.AppendLine("\t\t\t\t\tbreak;");
+            // Caso por defecto
+            SBuilder.AppendLine("\t\t\t\tdefault:");
+            SBuilder.AppendLine("\t\t\t\t\t// Agregue código para el caso por defecto");
+            SBuilder.AppendLine("\t\t\t\t\tbreak;");
+            SBuilder.AppendLine("\t\t\t}");
+
+            SBuilder.AppendLine("\t\t}");
+
+            return sbuilder;
+        }
+
+        public static StringBuilder ImprimirMetodoBotones(StringBuilder sbuilder)
+        {
+            StringBuilder SBuilder = sbuilder;
+
+            SBuilder.AppendLine("");
+            SBuilder.AppendLine("\t// Función para mostrar y renombrar los botones");
+            SBuilder.AppendLine("\tpublic void Botones(bool IsModoVer, string TituloBotonCancelar)");
+            SBuilder.AppendLine("\t{");
+            SBuilder.AppendLine("\t\tif (Modo == \"Ver\")");
+            SBuilder.AppendLine("\t\t{");
+            SBuilder.AppendLine("\t\t\tIsModoVer = true;");
+            SBuilder.AppendLine("\t\t\tTituloBotonCancelar = \"Cerrar\";");
+            SBuilder.AppendLine("\t\t}");
+            SBuilder.AppendLine("\t\telse if (Modo == \"Insertar\" || Modo == \"Editar\")");
+            SBuilder.AppendLine("\t\t{");
+            SBuilder.AppendLine("\t\t\tIsModoVer = false;");
+            SBuilder.AppendLine("\t\t\tTituloBotonAccion = \"Guardar\";");
+            SBuilder.AppendLine("\t\t\tTituloBotonCancelar = \"Cancelar\";");
+            SBuilder.AppendLine("\t\t}");
+            SBuilder.AppendLine("\t\telse");
+            SBuilder.AppendLine("\t\t{");
+            SBuilder.AppendLine("\t\t\tTituloBotonAccion = \"Eliminar\";");
+            SBuilder.AppendLine("\t\t\tTituloBotonCancelar = \"Cancelar\";");
+            SBuilder.AppendLine("\t\t}");
+            SBuilder.AppendLine("\t}");
+
+            return SBuilder;
+        }
+
+        //public static StringBuilder ImprimirMetodoBotones(StringBuilder sbuilder)
+        //{
+        //    StringBuilder SBuilder = sbuilder;
+        //    SBuilder.AppendLine("");
+        //    SBuilder.AppendLine("\t // Funcion para mostrar y renombrar los botones");
+        //    SBuilder.AppendLine("\t public void Botones(bool IsModoVer, string TituloBotonCancelar)");
+        //    SBuilder.AppendLine("\t {");
+        //    SBuilder.AppendLine("\t\t if (Modo == \"Ver\")");
+        //    SBuilder.AppendLine("\t\t {");
+        //    SBuilder.AppendLine("\t\t\t IsModoVer = true;");
+        //    SBuilder.AppendLine("\t\t\t TituloBotonCancelar = \"Cerrar\";");
+        //    SBuilder.AppendLine("\t\t }");
+        //    SBuilder.AppendLine("\t\t else if (Modo==\"Insertar\" || Modo==\"Editar\")");
+        //    SBuilder.AppendLine("\t\t {");            
+        //    SBuilder.AppendLine("\t\t\t\t IsModoVer = false;");
+        //    SBuilder.AppendLine("\t\t\t\t TituloBotonAccion = \"Guardar\";");
+        //    SBuilder.AppendLine("\t\t\t\t TituloBotonCancelar = \"Cancelar\";");
+        //    SBuilder.AppendLine("\t\t }");
+        //    SBuilder.AppendLine("\t\t\t else");
+        //    SBuilder.AppendLine("\t\t\t {");
+        //    SBuilder.AppendLine("\t\t\t\t\t TituloBotonAccion = \"Eliminar\";");
+        //    SBuilder.AppendLine("\t\t\t\t\t TituloBotonCancelar = \"Cancelar\";");
+        //    SBuilder.AppendLine("\t\t\t }");
+        //    SBuilder.AppendLine("\t }");
+        //    return SBuilder;
+        //}    
 
         public static StringBuilder ImprimirMetodoCancelacion(StringBuilder sbuilder)
         {
