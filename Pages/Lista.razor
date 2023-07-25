@@ -23,7 +23,9 @@
                                   Margin="Margin.Dense" 
                                   Label="Page" 
                                   Variant="Variant.Outlined"                             
-                                  HelperText="Ingrese el Link" />
+                                  HelperText="Ingrese el Link" 
+                                  Required=true
+                                  RequiredError="Ingrese una ruta del componente"/>
                 </MudItem>
                 <MudItem>
                 </MudItem>
@@ -82,8 +84,8 @@
 @code {
     string msg = "";
     public string NameSpace;
-    public string NombreClase = "Persona"; // se pasan datos para test
-    string link = "listapersona"; // se pasan datos para test
+    public string NombreClase = ""; // se pasan datos para test
+    string link = ""; // se pasan datos para test
 
     string nombreObjetoRecibido = "";
     int cantAtributos = 0;
@@ -94,7 +96,7 @@
     //para produccion
     //string nombreComponente = "";
     //Para Test
-    string nombreComponente = "ListaPersona";
+    string nombreComponente = "";
     string nombreComponenteMasRuta = "";
     // Solo para Test revisar variable para produccion
     string nombreComponentePopMasRuta = "";
@@ -148,31 +150,22 @@
         return ListaClaseDepurada;
     }
 
-    public void GenerarCodigoPopup()
-    {
-        ///TODO
-
-
-
-
-
-    }
-
-
     // Crear el Archivo Razor
     public void CrearArchivo()
     {
         // para test le mando la ruta directa 
         // para produccion
-        //Ruta = auxService.Ruta;
+        Ruta = auxService.Ruta;
         nombreComponente = char.ToUpper(nombreComponente[0]) + nombreComponente.Substring(1);
         // para test
-        nombreComponenteMasRuta = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas\\" + NombreClase + ".razor";
-        nombreComponentePopMasRuta = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas\\D_" + NombreClase + ".razor";
+        //nombreComponenteMasRuta = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas\\" + NombreClase + ".razor";
+        //nombreComponentePopMasRuta = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas\\D_" + NombreClase + ".razor";
         // Para produccion
-        //nombreComponenteMasRuta = $"{Ruta}\\{nombreComponente}.razor";
-
+        nombreComponenteMasRuta = $"{Ruta}\\{nombreComponente}.razor";
+        nombreComponentePopMasRuta= $"{Ruta}\\D_" + NombreClase + ".razor";
         NombreClase = auxService.NombreClase;
+        // Obtengo el listado para pasar por parametro en metodo ImprimirVariable
+        List<Clase> listAtributos = auxService.Listado;
         string infoFormat = "{first_item}-{last_item} de {all_items}";
         string filtros;
         try
@@ -183,8 +176,8 @@
 
                 // Copiar el contenido del objeto `writer` al `StringBuilder`
 
-                //Desde el linea page hasta el NameSpace
-                sbuilder = ManejoComponenteLista.ImprimirInicio(sbuilder, NameSpace, link);
+                //Desde el linea page hasta el NameSpace. EL tercer parametro (1) para indicar que es una Vista y no una clase
+                sbuilder = ManejoComponenteLista.ImprimirInicio(sbuilder, NameSpace,0, link);
 
                 sbuilder = ManejoComponenteLista.ImprimolBarContent(sbuilder, NombreClase);
 
@@ -226,7 +219,7 @@
 
                 //Funcion para abir Popup en Modo Agregar
 
-                sbuilder = ManejoComponenteLista.ImprimirAccionDialog(sbuilder, NombreClase);
+                sbuilder = ManejoComponenteLista.ImprimirAccionDialog(sbuilder, NombreClase, Listado);
 
                 // cierre de todo el archivo
                 sbuilder.AppendLine("}");                
@@ -254,7 +247,7 @@
             {
                 StringBuilder sbuilderPop = new StringBuilder();
                 // Se imprime los using y inject necesarios
-                sbuilderPop=ManejoComponenteLista.ImprimirInicio(sbuilderPop, NameSpace, link = "");
+                sbuilderPop=ManejoComponenteLista.ImprimirInicio(sbuilderPop, NameSpace,1,link);
 
 
                 // Se imprime el DialogCOntent de MudDialog y el Form Listando los atributos, 
@@ -270,13 +263,13 @@
                 // Inicio de @CODE
                 sbuilderPop.AppendLine("@code {");
                 //Se imprime variable
-                sbuilderPop = ManejoComponentePopup.ImprimirDialogVariable(sbuilderPop,NombreClase);
+                sbuilderPop = ManejoComponentePopup.ImprimirDialogVariable(sbuilderPop, NombreClase, listAtributos);
 
                 // Se imprime Metodo OnInitilized para cargar el objeto
                 sbuilderPop = ManejoComponentePopup.ImprimirMetodoOnInitialized(sbuilderPop,NombreClase,Listado);
 
                 //Se imprime Metodo de Insertar(Funcion invocada desde el swicth del Objeto Final)
-                sbuilderPop = ManejoComponentePopup.MetodoInsertar(sbuilderPop, NombreClase);
+                sbuilderPop = ManejoComponentePopup.MetodoAccionModo(sbuilderPop, NombreClase);
                 
                 //Se imprime Metodo Botones para Mostrar y renombrarlos
                 sbuilderPop = ManejoComponentePopup.ImprimirMetodoBotones(sbuilderPop);

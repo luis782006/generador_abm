@@ -1,7 +1,11 @@
+using DataAccessLayer;
 using Generador_ABM.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Services;
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -10,6 +14,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddMudServices();
 builder.Services.AddSingleton<AuxService>();
+builder.Services.AddSingleton<IDataAccess, SQLDataAccess>();// conexion por sql
 
 var app = builder.Build();
 

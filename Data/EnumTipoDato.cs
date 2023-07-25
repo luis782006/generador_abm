@@ -23,7 +23,7 @@ namespace Generador_ABM.Data
             Double,
             Bool,
             Char,
-            DateTime,
+            DateTime,         
             Decimal,
             Float,
             Long,

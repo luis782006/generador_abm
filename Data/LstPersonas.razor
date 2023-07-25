@@ -1,0 +1,140 @@
+@page "/listapersonas"
+@using System;
+
+@using System.Threading;
+@inject IDataAccess db;
+@using Serilog;
+@inject NavigationManager nav;
+@inject IDialogService DialogService;
+@using Microsoft.Extensions.Logging;
+@inject ISnackbar Snackbar;
+
+<MudText Typo="Typo.h4">Listado Persona</MudText>
+<MudContainer >
+	<MudPaper Class="d-flex justify-content-center" Height="20rem;">
+
+	@if (CargarInfo)
+	{
+		<MudGrid style="margin:auto; margin-left:50%;">
+			<MudProgressCircular Color="Color.Primary" Style="height:70px;width:70px;" Value="@progreso" Indeterminate="true" />
+
+		</MudGrid>
+	}
+	else
+	{		
+			<MudTable Items="@lstPersona" style="width:1024px;" Dense="true" Hover="true" Bordered="false" Striped="true" @ref="table" FixedHeader="true" Filter="new Func<Persona,bool>(FilterFunc1)">
+	 <ToolBarContent>
+		 <MudTextField T="string" @bind-Value="searchString1" style="width: 300px;" Placeholder="Buscar..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+			<MudTooltip Text="Agregar Persona"><MudFab Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Success" OnClick="@((e) => AccionPersona(maxWidth,"Insertar",0))" /></MudTooltip>
+	</ToolBarContent>
+@* Cabecera de todos los atributos de la clase *@
+		<HeaderContent>
+			<MudTh></MudTh>
+			<MudTh>ID_Persona</MudTh>
+			<MudTh>Nombre</MudTh>
+			<MudTh>Apellido</MudTh>
+			<MudTh>Edad</MudTh>
+			<MudTh>Trabaja</MudTh>
+			<MudTh>Cumpleanos</MudTh>
+		</HeaderContent >
+		<RowTemplate>
+			<MudTd Class="d-inline-flex justify-center">
+			<MudTooltip Text = "Ver Persona">
+				<MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Search" Color="Color.Info" OnClick="@((e) => AccionPersona(maxWidth,"Ver",@context.ID_Persona))" />
+			</MudTooltip>
+			<MudTooltip Text = "Editar Persona">
+				<MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Edit" Color="Color.Success" OnClick="@((e) => AccionPersona(maxWidth,"Editar",@context.ID_Persona))" />
+			</MudTooltip>
+			<MudTooltip Text = "Eliminar Persona">
+			<MudIconButton Size="Size.Small" Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@((e) => AccionPersona(maxWidth,"Eliminar",@context.ID_Persona))" />
+			</MudTooltip>
+			</MudTd>
+				<MudTd style="height: auto; width: auto;" DataLabel="ID_Persona">@context.ID_Persona</MudTd>
+				<MudTd style="height: auto; width: auto;" DataLabel="Nombre">@context.Nombre</MudTd>
+				<MudTd style="height: auto; width: auto;" DataLabel="Apellido">@context.Apellido</MudTd>
+				<MudTd style="height: auto; width: auto;" DataLabel="Edad">@context.Edad</MudTd>
+				<MudCheckBox style="height: auto; width: auto;" @bind-Checked="@context.Trabaja"></MudCheckBox>
+				<MudTd style="height: auto; width: auto;" DataLabel="Cumpleanos">@context.Cumpleanos?.ToString("dd/MM/yyyy")</MudTd>
+		</RowTemplate>
+		<PagerContent>
+			<MudTablePager RowsPerPageString="Filas por Pagina." InfoFormat="@($"Filas {infoFormat}")" HorizontalAlignment="HorizontalAlignment.Center" PageSizeOptions="new int[] { 25, 50, 100 }" />
+		</PagerContent>
+	</MudTable>
+
+	}
+	</MudPaper>
+</MudContainer>
+@code {
+	//Manejo para TABLE Lista MudBlazor
+	private MudTable<Persona> table;
+	private string searchString = null;
+	private string searchString1 = null;
+	private string infoFormat = "{first_item}-{last_item} de {all_items}";
+	// OPciones de Popup Dialog
+	DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+	private int totalItems;
+
+
+
+	bool CargarInfo = true;
+	long progreso = 0;
+
+
+	List<Persona> lstPersona =new List<Persona>();
+	protected override async Task OnInitializedAsync()
+	{
+		//Cargo lista de Objetos de Clases
+
+		lstPersona= await db.ObtenerListadoAsync<Persona, dynamic>(Persona.QueryBase, new { });
+		SimuladorDeProgreso(lstPersona.Count);
+		
+		//Agregue el codigo necesario
+	}
+
+	public async void SimuladorDeProgreso(long cantRegistros)
+	{
+		while (cantRegistros<0)
+		{
+			cantRegistros -= 1;
+			progreso = cantRegistros;
+			StateHasChanged();
+			await Task.Delay(3000);	
+		}
+		CargarInfo = false;
+
+	}
+
+	private bool FilterFunc1(Persona element) => FilterFunc(element, searchString1);
+
+	private bool FilterFunc(Persona element, string searchString)
+	{
+		if (string.IsNullOrWhiteSpace(searchString))
+			return true;
+		if (element.Nombre.ToString().Trim().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.Apellido.ToString().Trim().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		if (element.Cumpleanos.ToString().Trim().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			return true;
+		return false;
+	}
+
+		 private void OnSearch(string text)
+		 {
+			 searchString = text;
+			 table.ReloadServerData();
+		 }
+		 private async void AccionPersona(DialogOptions options,string Modo,Decimal ID)
+		 {
+			 var parameters = new DialogParameters();
+			 parameters.Add("ID", ID);
+			 parameters.Add("Modo", Modo);
+				 var dialog = DialogService.Show<D_Persona>($"{Modo.ToUpper()} PERSONA", parameters, options);
+			 var result = await dialog.Result;
+			 if (!result.Cancelled)
+			 {
+				 lstPersona = await db.ObtenerListadoAsync<Persona, dynamic>(Persona.QueryBase, new { });
+				 StateHasChanged();
+			 }
+		 }
+}

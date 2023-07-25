@@ -12,47 +12,48 @@ namespace Generador_ABM.Data
         public bool AceptaNull { get; set; }
         public string? ValorPorDefecto { get; set; }
         public bool IsExpanded { get; set; } = false;
+
         public Clase() { }
 
         // Para produccion
-        //public List<Clase> listaAtributos=new List<Clase>();
+        public List<Clase> listaAtributos = new List<Clase>();
 
         //Para test
-        public List<Clase> listaAtributosTest=new List<Clase>();
+        //public List<Clase> listaAtributosTest=new List<Clase>();
         public void AgregarAtributo(string nombreAtributo,DataType tipoDatoSeleccionado,bool aceptaNull, string valorPorDefecto)
         {
             // Para produccion
-            //listaAtributos.Add(new Clase
-            //{
-            //    NombreAtributo = nombreAtributo,
-            //    TipoDato = tipoDatoSeleccionado,
-            //    AceptaNull = aceptaNull,
-            //    ValorPorDefecto = valorPorDefecto
-            //});
+            listaAtributos.Add(new Clase
+            {
+                NombreAtributo = nombreAtributo,
+                TipoDato = tipoDatoSeleccionado,
+                AceptaNull = aceptaNull,
+                ValorPorDefecto = valorPorDefecto
+            });
 
             //Para desarrollo
-            listaAtributosTest.Add(new Clase
-            {
-                NombreAtributo = "IdPersona",
-                TipoDato = DataType.Int,
-                AceptaNull = false,
-                ValorPorDefecto = ""
-            });
+            //listaAtributosTest.Add(new Clase
+            //{
+            //    NombreAtributo = "IdPersona",
+            //    TipoDato = DataType.Int,
+            //    AceptaNull = false,
+            //    ValorPorDefecto = ""
+            //});
 
-            listaAtributosTest.Add(new Clase
-            {
-                NombreAtributo = "Nombre",
-                TipoDato = DataType.String,
-                AceptaNull = false,
-                ValorPorDefecto = ""
-            });
-            listaAtributosTest.Add(new Clase
-            {
-                NombreAtributo = "Apellido",
-                TipoDato = DataType.String,
-                AceptaNull = false,
-                ValorPorDefecto = ""
-            });
+            //listaAtributosTest.Add(new Clase
+            //{
+            //    NombreAtributo = "Nombre",
+            //    TipoDato = DataType.String,
+            //    AceptaNull = false,
+            //    ValorPorDefecto = ""
+            //});
+            //listaAtributosTest.Add(new Clase
+            //{
+            //    NombreAtributo = "Apellido",
+            //    TipoDato = DataType.String,
+            //    AceptaNull = false,
+            //    ValorPorDefecto = ""
+            //});
 
         }
     }

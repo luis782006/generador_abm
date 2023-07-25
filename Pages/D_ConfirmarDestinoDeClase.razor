@@ -5,7 +5,7 @@
    @* Para produccion @if (ListaDeAtributos.Count() == 0)*@
 
    @*Para Test*@
-    @if (ListaDeAtributosTest.Count() == 0)
+    @if (ListaDeAtributos.Count() == 0)
     {
     <MudDialog>
             <DialogContent>
@@ -56,11 +56,11 @@
     // Recibo la lista para usarla si lo deseo en el Dialog
 
     // Para produccion
-    //[Parameter] public List<Clase> ListaDeAtributos { get; set; }
+    [Parameter] public List<Clase> ListaDeAtributos { get; set; }
 
     //Para test
     //[Parameter] public List<Clase> ListaDeAtributos { get; set; }
-    [Parameter] public List<Clase> ListaDeAtributosTest { get; set; }
+    //[Parameter] public List<Clase> ListaDeAtributosTest { get; set; }
     [Parameter] public String NameSpace { get; set; }
     [Parameter] public String NombreClase { get; set; }
     [Parameter] public String Ruta{ get; set; }
@@ -79,7 +79,7 @@
         try
         {
             //modificar la lista de ListaDeAtributosTest  a  ListaDeAtributos
-            ManejoDeArchivo.CrearArchivoDeClase(ListaDeAtributosTest, NameSpace, NombreClase, Ruta, NombreInterface, SqlBase, SqlInsert, SqlUpdate, SqlDelete, SqlToString);
+            ManejoDeArchivo.CrearArchivoDeClase(ListaDeAtributos, NameSpace, NombreClase, Ruta, NombreInterface, SqlBase, SqlInsert, SqlUpdate, SqlDelete, SqlToString);
             MudDialog.Close(DialogResult.Ok(true));
 
         }

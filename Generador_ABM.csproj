@@ -14,4 +14,8 @@
     <PackageReference Include="MudBlazor" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\Proyectos\VS2022Preview\CPSPTF\MAGI00.DAL\MAGI00.DAL.csproj" />
+  </ItemGroup>
+
 </Project>
