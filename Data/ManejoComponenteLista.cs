@@ -9,10 +9,10 @@ namespace Generador_ABM.Data
     public class ManejoComponenteLista
     {
 	
-		public static StringBuilder ImprimirInicio(StringBuilder objSBuilder, string NameSpace,int identificador,string link)
+		public static StringBuilder ImprimirInicio(StringBuilder objSBuilder, string NameSpace,int identificador,bool IsDialog,string link)
         {
             StringBuilder SBuilder = objSBuilder;
-            if (identificador != 1)
+            if (!IsDialog)
             {
 				SBuilder.AppendLine($"@page \"/{link}\"");       
 
@@ -27,7 +27,7 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine("@using Microsoft.Extensions.Logging;");
             SBuilder.AppendLine("@inject ISnackbar Snackbar;");           
             SBuilder.AppendLine("");
-            if (identificador == 1)
+            if (identificador != 1)
             {
                 SBuilder.AppendLine($"namespace {NameSpace}");
                 SBuilder.AppendLine("{");
@@ -40,8 +40,20 @@ namespace Generador_ABM.Data
         {
             StringBuilder SBuilder = sBuilder;
             SBuilder.AppendLine($"<MudText Typo=\"Typo.h4\">Listado {NombreClase}</MudText>");
-            SBuilder.AppendLine("<MudContainer>");
-            SBuilder.AppendLine($"<MudTable Items=\"@lst{NombreClase}\" Dense=\"true\" Hover=\"true\" Bordered=\"false\" Striped=\"true\" @ref=\"table\" FixedHeader=\"true\" Filter=\"new Func<{NombreClase},bool>(FilterFunc1)\">");
+            SBuilder.AppendLine("<MudPaper Class=\"d-flex justify-content-center p-4\" Width=\"100%\">");
+            SBuilder.AppendLine("\t <MudPaper style=\"width:80rem;\" >");
+            SBuilder.AppendLine($"\t @if (lst{NombreClase}.Count==0)");
+            SBuilder.AppendLine("\t{");
+            SBuilder.AppendLine("\t\t<MudGrid Style=\"text-align:center;\">");
+            SBuilder.AppendLine("\t\t\t<MudItem sm=\"12\">");
+            SBuilder.AppendLine("\t\t\t\t<MudText Typo=\"Typo.h6\">Cargando registros....</MudText>");
+            SBuilder.AppendLine("\t\t\t\t<MudProgressCircular Color=\"Color.Primary\" Style=\"height:70px;width:70px;\" Indeterminate=\"true\" />");
+            SBuilder.AppendLine("\t\t\t</MudItem>");
+            SBuilder.AppendLine("\t\t</MudGrid>");
+            SBuilder.AppendLine("\t}");
+            SBuilder.AppendLine("\telse");
+            SBuilder.AppendLine("\t{"); // apertura del else. El cierre esta en el Metodo ImprimirPaginador quien hace el cierre
+            SBuilder.AppendLine($"\t<MudTable Items=\"@lst{NombreClase}\" Breakpoint=\"Breakpoint.Sm\" style=\"width:80%;padding:1rem;\" Dense=\"true\" Hover=\"true\" Bordered=\"false\" Striped=\"true\" @ref=\"table\" FixedHeader=\"true\" Filter=\"new Func<{NombreClase},bool>(FilterFunc1)\">");
             SBuilder.AppendLine("\t <ToolBarContent>");
             SBuilder.AppendLine("\t\t <MudTextField T=\"string\" @bind-Value=\"searchString1\" style=\"width: 300px;\" Placeholder=\"Buscar...\" Adornment=\"Adornment.Start\" AdornmentIcon=\"@Icons.Material.Filled.Search\" IconSize=\"Size.Medium\" Class=\"mt-0\"></MudTextField>");
             SBuilder.AppendLine($"\t\t\t<MudTooltip Text=\"Agregar {NombreClase}\"><MudFab Size=\"Size.Small\" Variant=\"Variant.Filled\" StartIcon=\"@Icons.Material.Filled.Add\" Color=\"Color.Success\" OnClick=\"@((e) => Accion{NombreClase}(maxWidth,\"Insertar\",0))\" /></MudTooltip>");
@@ -51,15 +63,22 @@ namespace Generador_ABM.Data
         }
 
 
-        public static StringBuilder  ImprimirCabecera(List<Clase> Listado, StringBuilder objSBuilder)
+        public static StringBuilder  ImprimirCabecera(List<Clase> Listado, StringBuilder objSBuilder, string NombreClase)
         {
             StringBuilder SBuilder = objSBuilder;
 
-            SBuilder.AppendLine("\t\t\t<MudTh></MudTh>");
+            SBuilder.AppendLine("\t\t\t<MudTh>Acciones</MudTh>");
 
             foreach (Clase item in Listado)
             {
-                SBuilder.AppendLine("\t\t\t" + $"<MudTh>{item.NombreAtributo}</MudTh>");
+                if (item.TipoDato.ToString() == "String" || item.TipoDato.ToString()=="DateTime")
+                {
+                    SBuilder.AppendLine("\t\t\t" + $"<MudTh><MudTableSortLabel SortBy=\"new Func<{NombreClase}, object?>(x=>x.{item.NombreAtributo})\">{item.NombreAtributo}</MudTableSortLabel></MudTh>");
+                }
+                else
+                {
+					SBuilder.AppendLine("\t\t\t" + $"<MudTh>{item.NombreAtributo}</MudTh>");
+				}
 
             }
             return SBuilder;
@@ -122,66 +141,50 @@ namespace Generador_ABM.Data
 					default:
                         break;
                 }
-                
-
-
 			}
 
             return SBuilder;
         }
 
-        public static StringBuilder MetodoFiltro(string NombreClase, List<Clase> Listado, StringBuilder objBuilder)
+		public static StringBuilder ImprimirPaginador(StringBuilder objBuilder, string infoFormat)
+		{
+			StringBuilder SBuilder = objBuilder;
+
+			SBuilder.AppendLine($"\t\t\t<MudTablePager RowsPerPageString=\"Filas por Pagina.\" InfoFormat=\"@($\"Filas {{infoFormat}}\")\" HorizontalAlignment=\"HorizontalAlignment.Center\" PageSizeOptions=\"new int[] {{ 25, 50, 100 }}\" />");
+			SBuilder.AppendLine("\t\t</PagerContent>");
+			SBuilder.AppendLine("\t</MudTable>");
+            SBuilder.AppendLine("}");// Este esl cierre del if para mostrar ProgressCircular o la table.
+            SBuilder.AppendLine("</MudPaper>");
+			SBuilder.AppendLine("</MudPaper>");
+
+			return SBuilder;
+		}
+
+		public static StringBuilder MetodoFiltro(string NombreClase, List<Clase> Listado, StringBuilder objBuilder)
         {
 			StringBuilder sBuilder = objBuilder;
 
-			sBuilder.AppendLine("private bool FilterFunc1(Persona element) => FilterFunc(element, searchString1);");
+			sBuilder.AppendLine("\tprivate bool FilterFunc1(Persona element) => FilterFunc(element, searchString1);");
 			sBuilder.AppendLine();
-			sBuilder.AppendLine("private bool FilterFunc(Persona element, string searchString)");
+			sBuilder.AppendLine("\tprivate bool FilterFunc(Persona element, string searchString)");
 			sBuilder.AppendLine("{");
-			sBuilder.AppendLine("\tif (string.IsNullOrWhiteSpace(searchString))");
-			sBuilder.AppendLine("\t\treturn true;");
-			sBuilder.AppendLine("\tif (element.Nombre.ToString().Trim().Contains(searchString, StringComparison.OrdinalIgnoreCase))");
-			sBuilder.AppendLine("\t\treturn true;");
+			sBuilder.AppendLine("\t\tif (string.IsNullOrWhiteSpace(searchString))");
+			sBuilder.AppendLine("\t\t\treturn true;");
 			sBuilder.AppendLine();
 
 			foreach (Clase item in Listado)
             {              
                 if (item.TipoDato==EnumTipoDato.DataType.String || item.TipoDato ==EnumTipoDato.DataType.DateTime)
                 {
-                    sBuilder.AppendLine($"\t\t\t if (element.{item.NombreAtributo}.ToString().Trim().Contains(searchString, StringComparison.OrdinalIgnoreCase))");
-                    sBuilder.AppendLine($"\t\t\t\t return true;");
+                    sBuilder.AppendLine($"\t\t if (element.{item.NombreAtributo}.ToString().Trim().Contains(searchString, StringComparison.OrdinalIgnoreCase))");
+                    sBuilder.AppendLine($"\t\t\t return true;");
 
                 }
             }
             sBuilder.AppendLine("\t\t\t return false;");
             sBuilder.AppendLine("\t\t }");
             return sBuilder;
-        }
-
-        public static StringBuilder MetodoBuscar(StringBuilder objBuilder)
-        {
-            StringBuilder sBuilder = objBuilder;
-            sBuilder.AppendLine("\t\t private void OnSearch(string text)");
-            sBuilder.AppendLine("\t\t {");
-            sBuilder.AppendLine("\t\t\t searchString = text;");
-            sBuilder.AppendLine("\t\t\t table.ReloadServerData();");
-
-            sBuilder.AppendLine("\t\t }");
-
-            return sBuilder;
-        }
-
-        public static StringBuilder ImprimirPaginador(StringBuilder objBuilder, string infoFormat) 
-        {
-            StringBuilder SBuilder = objBuilder;
-            
-            SBuilder.AppendLine($"\t\t\t<MudTablePager RowsPerPageString=\"Filas por Pagina.\" InfoFormat=\"@($\"Filas {{infoFormat}}\")\" HorizontalAlignment=\"HorizontalAlignment.Center\" PageSizeOptions=\"new int[] {{ 25, 50, 100 }}\" />");
-            SBuilder.AppendLine("\t\t</PagerContent>");
-            SBuilder.AppendLine("\t</MudTable>");
-            SBuilder.AppendLine("</MudContainer>");
-
-            return SBuilder;
-        }
+        }         
 
         public static StringBuilder ImprimirVariable(StringBuilder sbuilder, string NombreClase)
         {
@@ -211,20 +214,20 @@ namespace Generador_ABM.Data
 
 			StringBuilder SBuilder = sbuilder;
 
-            SBuilder.AppendLine($"\t\t private async void Accion{NombreClase}(DialogOptions options,string Modo,{lstAtributos[0].TipoDato} ID)");
-            SBuilder.AppendLine("\t\t {");
-            SBuilder.AppendLine("\t\t\t var parameters = new DialogParameters();");
-            SBuilder.AppendLine("\t\t\t parameters.Add(\"ID\", ID);");
-            SBuilder.AppendLine("\t\t\t parameters.Add(\"Modo\", Modo);");     //$"{Modo.ToUpper()}
-			SBuilder.AppendLine($"\t\t\t\t var dialog = DialogService.Show<D_{NombreClase}>($\"{{Modo.ToUpper()}} {NombreClase.ToUpper()}\", parameters, options);");
-            SBuilder.AppendLine("\t\t\t var result = await dialog.Result;");
-            SBuilder.AppendLine("\t\t\t if (!result.Cancelled)");
-            SBuilder.AppendLine("\t\t\t {");          
-            SBuilder.AppendLine($"\t\t\t\t lst{NombreClase} = await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
-            SBuilder.AppendLine("\t\t\t\t StateHasChanged();");
+            SBuilder.AppendLine($"\t private async void Accion{NombreClase}(DialogOptions options,string Modo,{lstAtributos[0].TipoDato.ToString().ToLower()} ID)");
+            SBuilder.AppendLine("\t {");
+            SBuilder.AppendLine("\t\t var parameters = new DialogParameters();");
+            SBuilder.AppendLine("\t\t parameters.Add(\"ID\", ID);");
+            SBuilder.AppendLine("\t\t parameters.Add(\"Modo\", Modo);");     //$"{Modo.ToUpper()}
+			SBuilder.AppendLine($"\t\t\t var dialog = DialogService.Show<D_{NombreClase}>($\"{{Modo.ToUpper()}} {NombreClase.ToUpper()}\", parameters, options);");
+            SBuilder.AppendLine("\t\t var result = await dialog.Result;");
+            SBuilder.AppendLine("\t\t if (!result.Canceled)");
+            SBuilder.AppendLine("\t\t {");          
+            SBuilder.AppendLine($"\t\t\t lst{NombreClase} = await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
+            SBuilder.AppendLine("\t\t\t StateHasChanged();");
 
-            SBuilder.AppendLine("\t\t\t }");
             SBuilder.AppendLine("\t\t }");
+            SBuilder.AppendLine("\t }");
 
             return SBuilder;
         }
@@ -233,38 +236,28 @@ namespace Generador_ABM.Data
 		{
 			StringBuilder SBuilder = objBuilder;
 
-			SBuilder.AppendLine("\t\t protected override async Task OnInitializedAsync()");
+			SBuilder.AppendLine("\t\t protected override async Task OnAfterRenderAsync(bool firstRender)");
 			SBuilder.AppendLine("\t\t {");
-			SBuilder.AppendLine("\t\t //Cargo lista de Objetos de Clases");
-			SBuilder.AppendLine($"\t\t\t lst{NombreClase}= await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
-			SBuilder.AppendLine("\t\t //Agregue el codigo necesario");
+			SBuilder.AppendLine("\t\t\t //Cargo lista de Objetos de Clases");
+			SBuilder.AppendLine("\t\t\t await CargarDatos();");
+			SBuilder.AppendLine("\t\t\t StateHasChanged();");
+			SBuilder.AppendLine("\t\t\t //Agregue el codigo necesario");
 			SBuilder.AppendLine("\t\t }");
 			SBuilder.AppendLine("");
 
 			return SBuilder;
 		}
+        public static StringBuilder MetodoCargarDatos(string NombreClase, StringBuilder objBuilder)
+        {
+			StringBuilder SBuilder = objBuilder;
 
-		//public static StringBuilder ImprimirMetodoActualizar(StringBuilder sbuilder, string NombreClase,string ModoEdicion)
-		//{
-		//    StringBuilder SBuilder = sbuilder;
+            SBuilder.AppendLine("\tpublic async Task CargarDatos()");
+			SBuilder.AppendLine("\t{");
+			SBuilder.AppendLine($"\t\t\t lst{NombreClase}= await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
+			SBuilder.AppendLine("\t\t\t StateHasChanged();");            
+			SBuilder.AppendLine("\t}");
+            return SBuilder;
+		}
 
-		//    SBuilder.AppendLine("\t\t private async void Agregar(DialogOptions options, long ID)");
-		//    SBuilder.AppendLine("\t\t {");
-		//    SBuilder.AppendLine("\t\t\t var parameters = new DialogParameters();");
-		//    SBuilder.AppendLine("\t\t\t parameters.Add(\"'ID'\", ID);");
-		//    SBuilder.AppendLine($"\t\t\t parameters.Add(\"Modo\", ModoEdicion.{ModoEdicion});");
-		//    SBuilder.AppendLine($"\t\t\t var dialog = DialogService.Show<D_{NombreClase}>(\"\", parameters, options);");
-		//    SBuilder.AppendLine("\t\t\t var result = await dialog.Result;");
-		//    SBuilder.AppendLine("\t\t\t if (!result.Cancelled)");
-		//    SBuilder.AppendLine("\t\t\t {");
-		//    SBuilder.AppendLine($"\t\t\t\t Lista{NombreClase} = await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
-		//    SBuilder.AppendLine("\t\t\t\t StateHasChanged()");
-
-		//    SBuilder.AppendLine("\t\t\t }");
-		//    SBuilder.AppendLine("\t\t }");
-
-
-		//    return SBuilder;
-		//}
 	}
 }

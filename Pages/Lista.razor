@@ -16,7 +16,7 @@
                                   Variant="Variant.Outlined"
                                   Required="true"
                                   RequiredError="Debe ingresar el nombre del componente"
-                                  HelperText="Ingrese el nombre del archivo" />
+                                  HelperText="Sugerencia Lst+Nombre de Clase" />
                 </MudItem>
                 <MudItem sm="12" xl="4" md="6">
                     <MudTextField T="string" @bind-text="@link" 
@@ -25,7 +25,7 @@
                                   Variant="Variant.Outlined"                             
                                   HelperText="Ingrese el Link" 
                                   Required=true
-                                  RequiredError="Ingrese una ruta del componente"/>
+                                  RequiredError="Sugerencia lista+Nombre de Clase"/>
                 </MudItem>
                 <MudItem>
                 </MudItem>
@@ -33,9 +33,13 @@
         <MudGrid Class="d-flex flex-row align-start justify-content-between py-4" Style="padding:2rem;">
             <MudItem Class="d-flex flex-column">
         <MudText Typo="Typo.h5">Acciones sobre el Objeto de clase</MudText>
-            <MudCard Elevation="5">
-                <MudCardMedia Image="css/mudtableaccion.jpg" Class="rounded-lg" Height="150" />
+            <MudCard Elevation="5">               
+                <MudCardMedia Height="0" />
                 <MudCardContent>
+                    <div style="display:flex; justify-content:center;">
+                        <MudImage ObjectFit="ObjectFit.Contain" Height="150" Width="300" ObjectPosition="ObjectPosition.Center " Src="css/mudtableaccion.jpg"  Elevation="25" Class="rounded-lg" />
+
+                    </div>
                     <MudText Typo="Typo.h5">Acciones</MudText>
                     <MudText Typo="Typo.body2">Seleccione las acciones que desee sobre el registro</MudText>
                     <MudItem Class="d-flex flex-row">
@@ -55,10 +59,13 @@
         <MudItem Class="d-flex flex-column">
             <MudText Typo="Typo.h5">Crear componente Dialog</MudText>
             <MudCard Elevation="5">
-                <MudCardMedia Image="css/mudform.jpg" Height="180" Class="rounded-lg" />
+                <MudCardMedia Height="0" />
                 <MudCardContent>
+                    <div>
+                        <MudImage ObjectFit="ObjectFit.Fill" Height="140" Width="380" ObjectPosition="ObjectPosition.Left " Src="css/MudForm.jpg" Elevation="25" Class="rounded-lg" />
+                    </div>
                     <MudText Typo="Typo.h5">Dialog</MudText>
-                    <MudText Typo="Typo.body2">Se crea el archivo Dialog listando todos los campos</MudText>
+                    <MudText Typo="Typo.body2">Se crea el archivo Dialog listando todos los campos.</MudText>
                     <MudText Typo="Typo.body2">Personaliza el front de ser necesario</MudText> 
                     <MudText Typo="Typo.body2" Class="fw-bold fs-6" > <MudIcon Icon="@Icons.Material.Filled.Campaign" />  Nombre de componente a crear</MudText>
                     <MudText Typo="Typo.body2" Class="fw-bold fs-5"> D_@NombreClase</MudText>
@@ -112,6 +119,7 @@
     bool D_Editar = false;
     bool D_Eliminar = false;
 
+    bool IsDialog = false;
 
     List<string> ListaClaseDepurada =new List<string>();
 
@@ -172,12 +180,14 @@
         {
             using (StreamWriter writer = new StreamWriter(nombreComponenteMasRuta))
             {
+
                 StringBuilder sbuilder = new StringBuilder();
 
                 // Copiar el contenido del objeto `writer` al `StringBuilder`
 
-                //Desde el linea page hasta el NameSpace. EL tercer parametro (1) para indicar que es una Vista y no una clase
-                sbuilder = ManejoComponenteLista.ImprimirInicio(sbuilder, NameSpace,0, link);
+                //Desde el linea page hasta el NameSpace. EL tercer parametro (1) para indicar que es una Vista y no una clase,
+                //IsDialog seteado en false
+                sbuilder = ManejoComponenteLista.ImprimirInicio(sbuilder, NameSpace,1,IsDialog, link);
 
                 sbuilder = ManejoComponenteLista.ImprimolBarContent(sbuilder, NombreClase);
 
@@ -185,7 +195,7 @@
                 //Inicio del Header Table
                 sbuilder.AppendLine("\t\t<HeaderContent>");
                 // se imprime la cabacera del listado con los atributos de la clase
-                sbuilder=ManejoComponenteLista.ImprimirCabecera(Listado, sbuilder);
+                sbuilder=ManejoComponenteLista.ImprimirCabecera(Listado, sbuilder,NombreClase);
                 sbuilder.AppendLine("\t\t</HeaderContent >");
 
                 //se imprime las Acciones y cabeceras de Columnas
@@ -208,23 +218,23 @@
                 //Inicio CODE @code
                 sbuilder = ManejoComponenteLista.ImprimirVariable(sbuilder, NombreClase);
 
-                //Metodo OnInitializedAsync
+                //Metodo OnAfterRenderAsync
                 sbuilder = ManejoComponenteLista.MetodoCargaLista(NombreClase, sbuilder);
+
+                //Metodo de carga
+                sbuilder = ManejoComponenteLista.MetodoCargarDatos(NombreClase, sbuilder);
 
                 //Funciones de Filtro de Table
                 sbuilder = ManejoComponenteLista.MetodoFiltro(NombreClase, Listado,sbuilder);
 
-                //Funcion Buscar de Table
-                sbuilder = ManejoComponenteLista.MetodoBuscar(sbuilder);
-
                 //Funcion para abir Popup en Modo Agregar
-
                 sbuilder = ManejoComponenteLista.ImprimirAccionDialog(sbuilder, NombreClase, Listado);
 
                 // cierre de todo el archivo
                 sbuilder.AppendLine("}");                
 
                 //Escribo toda la cadena
+
                 writer.Write(sbuilder.ToString());
 
             }
@@ -247,7 +257,9 @@
             {
                 StringBuilder sbuilderPop = new StringBuilder();
                 // Se imprime los using y inject necesarios
-                sbuilderPop=ManejoComponenteLista.ImprimirInicio(sbuilderPop, NameSpace,1,link);
+                //IsDialog para sacarle el @page
+                IsDialog = true;
+                sbuilderPop=ManejoComponenteLista.ImprimirInicio(sbuilderPop, NameSpace,1,IsDialog,link);
 
 
                 // Se imprime el DialogCOntent de MudDialog y el Form Listando los atributos, 
@@ -270,10 +282,7 @@
 
                 //Se imprime Metodo de Insertar(Funcion invocada desde el swicth del Objeto Final)
                 sbuilderPop = ManejoComponentePopup.MetodoAccionModo(sbuilderPop, NombreClase);
-                
-                //Se imprime Metodo Botones para Mostrar y renombrarlos
-                sbuilderPop = ManejoComponentePopup.ImprimirMetodoBotones(sbuilderPop);
-
+            
                 // Se imprime Metodo de cancelacion
                 sbuilderPop = ManejoComponentePopup.ImprimirMetodoCancelacion(sbuilderPop);
 
@@ -281,6 +290,7 @@
                 sbuilderPop.AppendLine("}");
 
                 writerPop.Write(sbuilderPop.ToString());
+                StateHasChanged();
             }
 
         }

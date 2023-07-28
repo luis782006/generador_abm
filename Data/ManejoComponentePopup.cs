@@ -45,8 +45,8 @@ namespace Generador_ABM.Data
                     case EnumTipoDato.DataType.DateTime:
                         SBuilder.AppendLine("\t\t <MudTextField ");
                         SBuilder.AppendLine("\t\t\t\t T=\"DateTime?\"");
-                        SBuilder.AppendLine("\t\t\t\t  InputType=\"InputType.Date\" Format=\"dd/MM/yyyy\" Class=\"pt-2\"");
-						SBuilder.AppendLine($"\t\t\t\t @bind-Date=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");
+                        SBuilder.AppendLine("\t\t\t\t Format=\"dd/MM/yyyy\" Class=\"pt-2\"");
+						SBuilder.AppendLine($"\t\t\t\t @bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");
 						break;
                     //case EnumTipoDato.DataType.Char:
                     //    SBuilder.AppendLine("< MudTextField T = \"char\"");
@@ -83,9 +83,11 @@ namespace Generador_ABM.Data
 
                 if (clase.TipoDato==EnumTipoDato.DataType.Bool)
                 {
-					SBuilder.AppendLine("\t\t\t\tReadOnly=\"@SoloLectura\"/>");
+					SBuilder.AppendLine("\t\t\t\tReadOnly=\"@SoloLectura\"");
                     SBuilder.AppendLine("");
-                }
+                    SBuilder.AppendLine($"\t\t\t\tLabel=\"{clase.NombreAtributo}\"/>");
+
+				}
                 else
                 {
                 SBuilder.AppendLine($"\t\t\t\tLabel=\"{clase.NombreAtributo}\"");
@@ -133,10 +135,11 @@ namespace Generador_ABM.Data
 			SBuilder.AppendLine("");
 
 			//Boton según valor de parametro de ModoEdicion. Tener en cuenta si llega Id<>0 boton text sera Actualizar o Eliminar. Si ModoEdicion Ver entonces ocultar botón 
-			SBuilder.AppendLine("\t\t @if (!IsModoVer)");
+			SBuilder.AppendLine("\t\t @if (IsModoVer)");
             SBuilder.AppendLine("\t\t\t {");
-			SBuilder.AppendLine("\t\t\t <MudButton  @onclick=\"@((e)=>AccionModo())\"");
-            SBuilder.AppendLine("\t\t\t\t Color=\"Color.Success\"");
+			SBuilder.AppendLine("\t\t\t <MudButton  @onclick=\"@((e)=>AccionModo())\" Disabled=!valid");
+
+			SBuilder.AppendLine("\t\t\t\t Color=\"Color.Success\"");
             SBuilder.AppendLine("\t\t\t\t Variant=\"Variant.Filled\"");
             SBuilder.AppendLine("\t\t\t\t StartIcon=\"@Icons.Material.Filled.Save\">");
             SBuilder.AppendLine($"\t\t\t @TituloBotonAccion");
@@ -154,9 +157,9 @@ namespace Generador_ABM.Data
             StringBuilder SBuilder = sbuilder;
             SBuilder.AppendLine("\t //Todo Dialog-----");
             SBuilder.AppendLine("\t [CascadingParameter] MudDialogInstance MudDialog { get; set; }");
-            SBuilder.AppendLine("\t [Parameter] public string Modo { get; set; }");
+            SBuilder.AppendLine("\t [Parameter] public string? Modo { get; set; }");
             //obtengo el tipo de dato del primer atributo de listado(Tipo de dato del ID)
-             SBuilder.AppendLine($"\t [Parameter] public {lstAtributos[0]?.TipoDato} ID {{get; set;}} // corriga el tipo"); 
+             SBuilder.AppendLine($"\t [Parameter] public {lstAtributos[0]?.TipoDato.ToString().ToLower()} ID {{get; set;}} "); 
             SBuilder.AppendLine("");
             SBuilder.AppendLine("\t // INSTANCIA DE OBJETO");
             SBuilder.AppendLine($"\t\t {NombreClase} {NombreClase.ToLower()}=new {NombreClase}();");
@@ -196,21 +199,28 @@ namespace Generador_ABM.Data
             for (int i = 0; i < 3; i++)
             {
                 SBuilder.AppendLine($"\t\t // ModoEdicion {ModoAImripir[i]}");
-                SBuilder.AppendLine($"\t\t\t case \"{ModoAImripir[i]}\":");             
+                SBuilder.AppendLine($"\t\t\t case \"{ModoAImripir[i]}\":");    
+                
                
                 //Verificar que ModoImprimir del arreglo. Si distinto a Eliminar Boton=Guardar, sino Eliminar
-                if (ModoAImripir[i] != "Eliminar") 
+                if(ModoAImripir[i] == "Insertar")
                 {
-					SBuilder.AppendLine($"\t\t\t\t {NombreClase.ToLower()}={NombreClase.ToLower()}Query.FirstOrDefault();");
 					SBuilder.AppendLine("\t\t\t\tTituloBotonAccion = \"Guardar\";");
-				    SBuilder.AppendLine("\t\t\t\tIsModoVer = true;");
-                }
-                else
-                {
-					SBuilder.AppendLine($"\t\t\t\t {NombreClase.ToLower()}={NombreClase.ToLower()}Query.FirstOrDefault();");
-					SBuilder.AppendLine("\t\t\t\tTituloBotonAccion = \"Eliminar\";");
 					SBuilder.AppendLine("\t\t\t\tIsModoVer = true;");
-				}
+				}else
+                        if (ModoAImripir[i] != "Eliminar") 
+                        {
+					        SBuilder.AppendLine($"\t\t\t\t {NombreClase.ToLower()}={NombreClase.ToLower()}Query.FirstOrDefault();");
+					        SBuilder.AppendLine("\t\t\t\tTituloBotonAccion = \"Guardar\";");
+				            SBuilder.AppendLine("\t\t\t\tIsModoVer = true;");
+                        }
+                        else
+                        {
+                            
+					        SBuilder.AppendLine($"\t\t\t\t {NombreClase.ToLower()}={NombreClase.ToLower()}Query.FirstOrDefault();");
+					        SBuilder.AppendLine("\t\t\t\tTituloBotonAccion = \"Eliminar\";");
+					        SBuilder.AppendLine("\t\t\t\tIsModoVer = true;");
+				        }
 
 				SBuilder.AppendLine("\t\t\t\t // Agregue el codigo si es necesario");
                 SBuilder.AppendLine();
@@ -244,7 +254,7 @@ namespace Generador_ABM.Data
 
 			
 			SBuilder.AppendLine($"\t\t\t\t\t\tawait db.EjecutarQueryAsync<{NombreClase}>({NombreClase}.InsertQuery, {NombreClase.ToLower()});");
-            SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog.Close(DialogResult.Ok(true));");
+            SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog?.Close(DialogResult.Ok(true));");
             SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Se guardó correctamente\", Severity.Success);");
             SBuilder.AppendLine("\t\t\t\t\t}");
             SBuilder.AppendLine("\t\t\t\t\tcatch (Exception e)");
@@ -258,7 +268,7 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine("\t\t\t\t\ttry");
             SBuilder.AppendLine("\t\t\t\t\t{");
             SBuilder.AppendLine($"\t\t\t\t\t\tawait db.EjecutarQueryAsync<{NombreClase}>({NombreClase}.UpdateQuery, {NombreClase.ToLower()});");
-            SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog.Close(DialogResult.Ok(true));");
+            SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog?.Close(DialogResult.Ok(true));");
             SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Se editó correctamente\", Severity.Success);");
             SBuilder.AppendLine("\t\t\t\t\t}");
             SBuilder.AppendLine("\t\t\t\t\tcatch (Exception e)");
@@ -272,7 +282,7 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine("\t\t\t\t\ttry");
             SBuilder.AppendLine("\t\t\t\t\t{");
             SBuilder.AppendLine($"\t\t\t\t\t\tawait db.EjecutarQueryAsync<{NombreClase}>({NombreClase}.DeleteQuery, {NombreClase.ToLower()});");
-            SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog.Close(DialogResult.Ok(true));");
+            SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog?.Close(DialogResult.Ok(true));");
             SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Se eliminó correctamente\", Severity.Success);");
             SBuilder.AppendLine("\t\t\t\t\t}");
             SBuilder.AppendLine("\t\t\t\t\tcatch (Exception e)");
@@ -290,36 +300,6 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine("\t\t}");
 
             return sbuilder;
-        }
-
-        public static StringBuilder ImprimirMetodoBotones(StringBuilder sbuilder)
-        {
-            StringBuilder SBuilder = sbuilder;
-
-            SBuilder.AppendLine("");
-            SBuilder.AppendLine("\t// Función para mostrar y renombrar los botones");
-            SBuilder.AppendLine("\tpublic void Botones(string Modo,bool IsModoVer, string TituloBotonCancelar)");
-            SBuilder.AppendLine("\t{");
-            SBuilder.AppendLine("\t\tif (Modo == \"Ver\")");
-            SBuilder.AppendLine("\t\t{");
-            SBuilder.AppendLine("\t\t\tIsModoVer = true;");
-            SBuilder.AppendLine("\t\t\tTituloBotonCancelar = \"Cerrar\";");
-            SBuilder.AppendLine("\t\t}");
-            SBuilder.AppendLine("\t\telse if (Modo == \"Insertar\" || Modo == \"Editar\")");
-            SBuilder.AppendLine("\t\t{");
-            SBuilder.AppendLine("\t\t\tIsModoVer = false;");
-            SBuilder.AppendLine("\t\t\tTituloBotonAccion = \"Guardar\";");
-            SBuilder.AppendLine("\t\t\tTituloBotonCancelar = \"Cancelar\";");
-            SBuilder.AppendLine("\t\t}");
-            SBuilder.AppendLine("\t\telse");
-            SBuilder.AppendLine("\t\t{");
-            SBuilder.AppendLine("\t\t\tIsModoVer = false;");
-            SBuilder.AppendLine("\t\t\tTituloBotonAccion = \"Eliminar\";");
-            SBuilder.AppendLine("\t\t\tTituloBotonCancelar = \"Cancelar\";");
-            SBuilder.AppendLine("\t\t}");
-            SBuilder.AppendLine("\t}");
-
-            return SBuilder;
         }
 
        
