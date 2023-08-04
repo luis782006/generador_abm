@@ -53,35 +53,41 @@ public class ManejoDeArchivo
                         // control de tipos de datos.
                         if (!item.AceptaNull)
                         {
+
                             IsNulo = "?";
                         }
-                        else
+                        // TODO : Revisar Valor por defecto.
+                        
+                        if (item.ValorPorDefecto != null && item.ValorPorDefecto!="")// if (item.ValorPorDefecto != ValorXDefect)
                         {
-                            if (item.ValorPorDefecto != null)// if (item.ValorPorDefecto != ValorXDefect)
-                            {
-                                ValorXDefect = $"='{item.ValorPorDefecto}';";
-                            }
+                            ValorXDefect = $"=\"{item.ValorPorDefecto}\";";
                         }
-                    if (item.TipoDato.ToString() == "DateTime")
-                    {
-                        writer.WriteLine($"\t\t public {item.TipoDato}{IsNulo} {item.NombreAtributo} {{ get; set; }}{ValorXDefect}");
-                        ValorXDefect = "";
-                        IsNulo = "";
-                    }
-                    else  
-                    if (item.TipoDato.ToString() == "Bool")
-                    {
-                        writer.WriteLine($"\t\t public {item.TipoDato.ToString().ToLower()}{IsNulo} {item.NombreAtributo} {{ get; set; }}=false;");
-                    }else
+                        
+                        if (item.TipoDato.ToString() == "DateTime")
                         {
-                            writer.WriteLine($"\t\t public {item.TipoDato.ToString().ToLower()}{IsNulo} {item.NombreAtributo} {{ get; set; }}{ValorXDefect}");
+                            writer.WriteLine($"\t\t public {item.TipoDato}{IsNulo} {item.NombreAtributo} {{ get; set; }}{ValorXDefect}");
                             ValorXDefect = "";
                             IsNulo = "";
-
                         }
-                  
-
-
+                        else 
+                        if (item.TipoDato.ToString() == "Bool")
+                        {
+                            writer.WriteLine($"\t\t public {item.TipoDato.ToString().ToLower()}{IsNulo} {item.NombreAtributo} {{ get; set; }}=false;");
+                        }else 
+                        {
+                            if (ValorXDefect != "")
+                            {
+                                writer.WriteLine($"\t\t public {item.TipoDato.ToString().ToLower()}{IsNulo} {item.NombreAtributo} {{ get; set; }}{ValorXDefect}");
+                                ValorXDefect = "";
+                                IsNulo = "";
+                            }
+                            else
+                            {
+                                writer.WriteLine($"\t\t public {item.TipoDato.ToString().ToLower()}{IsNulo} {item.NombreAtributo} {{ get; set; }}");
+                                ValorXDefect = "";
+                                IsNulo = "";
+                            }
+                        }
                     }
                     // Control de booleanos SQL Base,Insert,Update,Delete,ToString
                     //Extraccion de datos

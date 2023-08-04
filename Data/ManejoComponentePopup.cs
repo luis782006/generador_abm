@@ -48,30 +48,44 @@ namespace Generador_ABM.Data
                         SBuilder.AppendLine("\t\t\t\t Format=\"dd/MM/yyyy\" Class=\"pt-2\"");
 						SBuilder.AppendLine($"\t\t\t\t @bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");
 						break;
-                    //case EnumTipoDato.DataType.Char:
-                    //    SBuilder.AppendLine("< MudTextField T = \"char\"");
-                    //    break;
-                    //case EnumTipoDato.DataType.Decimal:
-                    //    break;
-                    //case EnumTipoDato.DataType.Float:
-                    //    break;
-                    //case EnumTipoDato.DataType.Long:
-                    //    break;
-                    //case EnumTipoDato.DataType.Short:
-                    //    break;
-                    //case EnumTipoDato.DataType.Byte:
-                    //    break;
-                    //case EnumTipoDato.DataType.SByte:
-                    //    break;
-                    //case EnumTipoDato.DataType.UInt:
-                    //    break;
+                    case EnumTipoDato.DataType.Char:
+                        SBuilder.AppendLine("< MudTextField T = \"char\" Class=\"pt-2\"");
+						SBuilder.AppendLine($"\t\t\t\t@bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");
+						break;
+                    case EnumTipoDato.DataType.Float:
+						SBuilder.AppendLine("\t\t <MudTextField T = \"float?\" Class=\"pt-2\"");
+						SBuilder.AppendLine($"\t\t\t\t@bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");						
+						break;
+                    case EnumTipoDato.DataType.Long:
+						SBuilder.AppendLine("\t\t <MudTextField T = \"long?\" Class=\"pt-2\"");
+						SBuilder.AppendLine($"\t\t\t\t@bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");
+						break;
+                    case EnumTipoDato.DataType.Short:
+						SBuilder.AppendLine("\t\t <MudTextField T = \"short?\" Class=\"pt-2\"");
+						SBuilder.AppendLine($"\t\t\t\t@bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");
+						break;
+                    case EnumTipoDato.DataType.Byte:
+						SBuilder.AppendLine("\t\t <MudTextField T = \"byte?\" Class=\"pt-2\"");
+						SBuilder.AppendLine($"\t\t\t\t@bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");
+						break;
+						break;
+                    case EnumTipoDato.DataType.SByte:
+						SBuilder.AppendLine("\t\t <MudTextField T = \"sbyte?\" Class=\"pt-2\"");
+						SBuilder.AppendLine($"\t\t\t\t@bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");
+						break;
+                    case EnumTipoDato.DataType.UInt:
+						SBuilder.AppendLine("\t\t <MudTextField T = \"unit?\" Class=\"pt-2\"");
+						SBuilder.AppendLine($"\t\t\t\t@bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");						
+						break;
                     case EnumTipoDato.DataType.ULong:
                         SBuilder.AppendLine("<\t\t\t MudTextField T = \"long?\" Class=\"pt-2\"");
 						SBuilder.AppendLine($"\t\t\t\t@bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");
 						break;
-                    //case EnumTipoDato.DataType.UShort:
-                    //    break;
-                    //default:
+                    case EnumTipoDato.DataType.UShort:
+						SBuilder.AppendLine("\t\t <MudTextField T = \"ushort?\" Class=\"pt-2\"");
+						SBuilder.AppendLine($"\t\t\t\t@bind-Value=\"{NombreClase.ToLower()}.{clase.NombreAtributo}\" ");						
+						break;
+                        //default:
                         break;
                 }
                 //Variable indice para hacer imprimir Autofous en el primer atributo
@@ -137,7 +151,7 @@ namespace Generador_ABM.Data
 			//Boton según valor de parametro de ModoEdicion. Tener en cuenta si llega Id<>0 boton text sera Actualizar o Eliminar. Si ModoEdicion Ver entonces ocultar botón 
 			SBuilder.AppendLine("\t\t @if (IsModoVer)");
             SBuilder.AppendLine("\t\t\t {");
-			SBuilder.AppendLine("\t\t\t <MudButton  @onclick=\"@((e)=>AccionModo())\" Disabled=!valid");
+			SBuilder.AppendLine("\t\t\t <MudButton  @onclick=\"@((e)=>AccionModo())\" ");
 
 			SBuilder.AppendLine("\t\t\t\t Color=\"Color.Success\"");
             SBuilder.AppendLine("\t\t\t\t Variant=\"Variant.Filled\"");
@@ -220,6 +234,7 @@ namespace Generador_ABM.Data
 					        SBuilder.AppendLine($"\t\t\t\t {NombreClase.ToLower()}={NombreClase.ToLower()}Query.FirstOrDefault();");
 					        SBuilder.AppendLine("\t\t\t\tTituloBotonAccion = \"Eliminar\";");
 					        SBuilder.AppendLine("\t\t\t\tIsModoVer = true;");
+                            SBuilder.AppendLine("\t\t\t\tSoloLectura=true;");                            
 				        }
 
 				SBuilder.AppendLine("\t\t\t\t // Agregue el codigo si es necesario");
@@ -249,10 +264,7 @@ namespace Generador_ABM.Data
             // Método Insertar
             SBuilder.AppendLine("\t\t\t\tcase \"Insertar\":");
             SBuilder.AppendLine("\t\t\t\t\ttry");
-            SBuilder.AppendLine("\t\t\t\t\t{");
-            // TODO: Tengo que controlar que si hay un campo booleano al insertar tengo que verificar que si no se marco el campo tome el valor de false
-
-			
+            SBuilder.AppendLine("\t\t\t\t\t{");            
 			SBuilder.AppendLine($"\t\t\t\t\t\tawait db.EjecutarQueryAsync<{NombreClase}>({NombreClase}.InsertQuery, {NombreClase.ToLower()});");
             SBuilder.AppendLine("\t\t\t\t\t\tthis.MudDialog?.Close(DialogResult.Ok(true));");
             SBuilder.AppendLine("\t\t\t\t\t\tSnackbar.Add(\"Se guardó correctamente\", Severity.Success);");

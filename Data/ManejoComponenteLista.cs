@@ -22,6 +22,7 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine("@using System.Threading;");
             SBuilder.AppendLine("@inject IDataAccess db;");
             SBuilder.AppendLine("@using Serilog;");
+            SBuilder.AppendLine($"@using {NameSpace}");
             SBuilder.AppendLine("@inject NavigationManager nav;");
             SBuilder.AppendLine("@inject IDialogService DialogService;");
             SBuilder.AppendLine("@using Microsoft.Extensions.Logging;");
@@ -42,7 +43,7 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine($"<MudText Typo=\"Typo.h4\">Listado {NombreClase}</MudText>");
             SBuilder.AppendLine("<MudPaper Class=\"d-flex justify-content-center p-4\" Width=\"100%\">");
             SBuilder.AppendLine("\t <MudPaper style=\"width:80rem;\" >");
-            SBuilder.AppendLine($"\t @if (lst{NombreClase}.Count==0)");
+            SBuilder.AppendLine($"\t @if (Cargando)");
             SBuilder.AppendLine("\t{");
             SBuilder.AppendLine("\t\t<MudGrid Style=\"text-align:center;\">");
             SBuilder.AppendLine("\t\t\t<MudItem sm=\"12\">");
@@ -164,9 +165,9 @@ namespace Generador_ABM.Data
         {
 			StringBuilder sBuilder = objBuilder;
 
-			sBuilder.AppendLine("\tprivate bool FilterFunc1(Persona element) => FilterFunc(element, searchString1);");
+			sBuilder.AppendLine($"\tprivate bool FilterFunc1({NombreClase} element) => FilterFunc(element, searchString1);");
 			sBuilder.AppendLine();
-			sBuilder.AppendLine("\tprivate bool FilterFunc(Persona element, string searchString)");
+			sBuilder.AppendLine($"\tprivate bool FilterFunc({NombreClase} element, string searchString)");
 			sBuilder.AppendLine("{");
 			sBuilder.AppendLine("\t\tif (string.IsNullOrWhiteSpace(searchString))");
 			sBuilder.AppendLine("\t\t\treturn true;");
@@ -199,6 +200,9 @@ namespace Generador_ABM.Data
             SBuilder.AppendLine("\t\t // OPciones de Popup Dialog");
             SBuilder.AppendLine("\t\t DialogOptions maxWidth = new DialogOptions() { MaxWidth = MaxWidth.Small, FullWidth = true };");
             SBuilder.AppendLine("\t\t private int totalItems;");
+            SBuilder.AppendLine("private bool Cargando = true;");
+            SBuilder.AppendLine("private bool ExitoDeCarga = true");
+
             SBuilder.AppendLine("");
             SBuilder.AppendLine($"\t\t List<{NombreClase}> lst{NombreClase} =new List<{NombreClase}>();");
 
@@ -222,11 +226,18 @@ namespace Generador_ABM.Data
 			SBuilder.AppendLine($"\t\t\t var dialog = DialogService.Show<D_{NombreClase}>($\"{{Modo.ToUpper()}} {NombreClase.ToUpper()}\", parameters, options);");
             SBuilder.AppendLine("\t\t var result = await dialog.Result;");
             SBuilder.AppendLine("\t\t if (!result.Canceled)");
-            SBuilder.AppendLine("\t\t {");          
-            SBuilder.AppendLine($"\t\t\t lst{NombreClase} = await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
-            SBuilder.AppendLine("\t\t\t StateHasChanged();");
-
-            SBuilder.AppendLine("\t\t }");
+            SBuilder.AppendLine("\t\t {");      
+            SBuilder.AppendLine("\t\t\ttry");
+            SBuilder.AppendLine("\t\t\t{");
+            SBuilder.AppendLine($"\t\t\t\t lst{NombreClase} = await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
+            SBuilder.AppendLine("\t\t\t\t StateHasChanged();");           
+            SBuilder.AppendLine("\t\t\t}");
+            SBuilder.AppendLine("\t\t\tcatch(Exception e)");
+            SBuilder.AppendLine("\t\t\t{");
+			SBuilder.AppendLine("\t\t\t\tSnackbar.Add(\"Error al cargar los datos\", Severity.Error);");
+			SBuilder.AppendLine("\t\t\t\tLog.Error(e.Message);");            
+            SBuilder.AppendLine("\t\t\t}");
+			SBuilder.AppendLine("\t\t}");
             SBuilder.AppendLine("\t }");
 
             return SBuilder;
@@ -239,8 +250,17 @@ namespace Generador_ABM.Data
 			SBuilder.AppendLine("\t\t protected override async Task OnAfterRenderAsync(bool firstRender)");
 			SBuilder.AppendLine("\t\t {");
 			SBuilder.AppendLine("\t\t\t //Cargo lista de Objetos de Clases");
-			SBuilder.AppendLine("\t\t\t await CargarDatos();");
-			SBuilder.AppendLine("\t\t\t StateHasChanged();");
+            SBuilder.AppendLine("\t\t\t if (firstRender)");
+            SBuilder.AppendLine("\t\t\t{");
+			SBuilder.AppendLine("\t\t\t\t await CargarDatos();");
+            SBuilder.AppendLine("\t\t\t\t Cargando = false;");
+			SBuilder.AppendLine("\t\t\t\t StateHasChanged();");
+            SBuilder.AppendLine("\t\t\t\t if (!ExitoDeCarga)");
+            SBuilder.AppendLine("\t\t\t\t{");
+            SBuilder.AppendLine("\t\t\t\t\tCargando = true;");
+            SBuilder.AppendLine("\t\t\t\t\tStateHasChanged();");
+            SBuilder.AppendLine("\t\t\t\t}");
+			SBuilder.AppendLine("\t\t\t}");
 			SBuilder.AppendLine("\t\t\t //Agregue el codigo necesario");
 			SBuilder.AppendLine("\t\t }");
 			SBuilder.AppendLine("");
@@ -253,11 +273,20 @@ namespace Generador_ABM.Data
 
             SBuilder.AppendLine("\tpublic async Task CargarDatos()");
 			SBuilder.AppendLine("\t{");
+			SBuilder.AppendLine("\t\ttry");
+			SBuilder.AppendLine("\t\t{");
 			SBuilder.AppendLine($"\t\t\t lst{NombreClase}= await db.ObtenerListadoAsync<{NombreClase}, dynamic>({NombreClase}.QueryBase, new {{ }});");
 			SBuilder.AppendLine("\t\t\t StateHasChanged();");            
+            SBuilder.AppendLine("\t\t}");
+            SBuilder.AppendLine("\t\tcatch(Exception e)");
+			SBuilder.AppendLine("\t\t{");
+			SBuilder.AppendLine("\t\t\tSnackbar.Add(\"Error al cargar los datos\", Severity.Error);");
+			SBuilder.AppendLine("\t\t\tExitoDeCarga = false;");
+			SBuilder.AppendLine("\t\t\tLog.Error(e.Message);");
+			SBuilder.AppendLine("\t\t}");
 			SBuilder.AppendLine("\t}");
             return SBuilder;
 		}
-
+   
 	}
 }

@@ -20,10 +20,6 @@ build_property._RazorSourceGeneratorDebug =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/usuario/source/repos/GeneradorABM/Pages/Dialog.razor]
-build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGlhbG9nLnJhem9y
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/usuario/source/repos/GeneradorABM/Pages/D_ConfirmarDestinoDeClase.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRF9Db25maXJtYXJEZXN0aW5vRGVDbGFzZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
@@ -38,6 +34,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/usuario/source/repos/GeneradorABM/Pages/Lista.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTGlzdGEucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/usuario/source/repos/GeneradorABM/Pages/ScriptSQL.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2NyaXB0U1FMLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/usuario/source/repos/GeneradorABM/Shared/SurveyPrompt.razor]

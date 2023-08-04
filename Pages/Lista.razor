@@ -10,24 +10,41 @@
 
             <MudGrid Class="d-flex align-center justify-content-between py-4" Style="padding:2rem;">
                 <MudItem sm="12" xl="4" md="6"  >
-                    <MudTextField T="string" @bind-text="@nombreComponente" 
-                                  Margin="Margin.Dense"
+                    <MudTextField T="string" @bind-text="@nombreComponente"
+                          Placeholder=@placeHolder
+                          Margin="Margin.Dense"
                                   Label="Componente Razor"
-                                  Variant="Variant.Outlined"
-                                  Required="true"
-                                  RequiredError="Debe ingresar el nombre del componente"
-                                  HelperText="Sugerencia Lst+Nombre de Clase" />
+                                  Variant="Variant.Outlined"                                 
+                                  HelperText="Aceptar o Ingresar el nombre del componente" />
+                    <MudItem>
+                
+                        <MudCheckBox @bind-Checked="nombreListComponente" Color="Color.Primary">Aceptar</MudCheckBox>
+                    </MudItem>
                 </MudItem>
+                    <MudItem sm="12" xl="4" md="6" Class="d-flex flex-column ">
+                        <MudTextField T="string" @bind-text="@link" 
+                                        Margin="Margin.Dense" 
+                                        Label="Page" 
+                                        Variant="Variant.Outlined"                                                               
+                                        Required=true
+                                        RequiredError="Sugerencia lista+Nombre de Clase"
+                                        style="margin-bottom:1.8rem;"/>
+                        <MudItem>
+                            <MudText Typo="Typo.subtitle1" style="margin-bottom:1rem;">Link de ruta para acceder al componente</MudText>
+                        @*<MudCheckBox @bind-Checked="nombreListComponente" Color="Color.Primary">Aceptar</MudCheckBox>*@
+                        </MudItem>
+                    </MudItem>
+            </MudGrid>
+            <MudGrid Class=" py-4" Style="padding:2rem;">
                 <MudItem sm="12" xl="4" md="6">
-                    <MudTextField T="string" @bind-text="@link" 
-                                  Margin="Margin.Dense" 
-                                  Label="Page" 
-                                  Variant="Variant.Outlined"                             
-                                  HelperText="Ingrese el Link" 
-                                  Required=true
-                                  RequiredError="Sugerencia lista+Nombre de Clase"/>
-                </MudItem>
-                <MudItem>
+                    <MudTextField T="string" @bind-Value="rutaComponentes"
+                          Margin="Margin.Dense"
+                          Label="Ruta para guardar los componentes"
+                          Variant="Variant.Outlined"
+                          HelperText="Ingrese la ruta para guardar los componentes"
+                          Required=true                          
+                          />
+
                 </MudItem>
             </MudGrid>
         <MudGrid Class="d-flex flex-row align-start justify-content-between py-4" Style="padding:2rem;">
@@ -94,10 +111,11 @@
     public string NombreClase = ""; // se pasan datos para test
     string link = ""; // se pasan datos para test
 
+    string placeHolder = "";
     string nombreObjetoRecibido = "";
     int cantAtributos = 0;
     public bool success = true;
-
+    public bool nombreListComponente = false;
     List<Clase> Listado = new List<Clase>();
     string Ruta = "";
     //para produccion
@@ -107,7 +125,7 @@
     string nombreComponenteMasRuta = "";
     // Solo para Test revisar variable para produccion
     string nombreComponentePopMasRuta = "";
-
+    string rutaComponentes = "";
     //Opciones Crud sobre la clase objeto
     bool Ver = false;
     bool Editar = false;
@@ -126,7 +144,7 @@
     protected override void OnInitialized()
     {
         List<string> Listado=CargaDeLista();
-
+        placeHolder=$"Listado{NombreClase}";
     }
 
     public List<string>  CargaDeLista()
@@ -164,14 +182,24 @@
         // para test le mando la ruta directa 
         // para produccion
         Ruta = auxService.Ruta;
-        nombreComponente = char.ToUpper(nombreComponente[0]) + nombreComponente.Substring(1);
+        if (nombreListComponente)
+        {
+            nombreComponente = $"Listado{NombreClase}";
+        }
+        else
+        {
+            nombreComponente = char.ToUpper(nombreComponente[0]) + nombreComponente.Substring(1);
+        }
         // para test
         //nombreComponenteMasRuta = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas\\" + NombreClase + ".razor";
         //nombreComponentePopMasRuta = "C:\\Users\\usuario\\Documents\\Luis\\Archivos csv de pruebas\\D_" + NombreClase + ".razor";
         // Para produccion
-        nombreComponenteMasRuta = $"{Ruta}\\{nombreComponente}.razor";
-        nombreComponentePopMasRuta= $"{Ruta}\\D_" + NombreClase + ".razor";
+        //***nombreComponenteMasRuta = $"{Ruta}\\{nombreComponente}.razor";
+        //***nombreComponentePopMasRuta= $"{Ruta}\\D_" + NombreClase + ".razor";
         NombreClase = auxService.NombreClase;
+
+        nombreComponenteMasRuta = $"{rutaComponentes}\\{nombreComponente}.razor";
+        nombreComponentePopMasRuta = $"{rutaComponentes}\\D_{NombreClase}.razor";
         // Obtengo el listado para pasar por parametro en metodo ImprimirVariable
         List<Clase> listAtributos = auxService.Listado;
         string infoFormat = "{first_item}-{last_item} de {all_items}";
@@ -180,7 +208,7 @@
         {
             using (StreamWriter writer = new StreamWriter(nombreComponenteMasRuta))
             {
-
+                Console.WriteLine(nombreComponenteMasRuta);
                 StringBuilder sbuilder = new StringBuilder();
 
                 // Copiar el contenido del objeto `writer` al `StringBuilder`
@@ -255,6 +283,7 @@
         {
             using (StreamWriter writerPop = new StreamWriter(nombreComponentePopMasRuta))
             {
+                Console.WriteLine(nombreComponentePopMasRuta);
                 StringBuilder sbuilderPop = new StringBuilder();
                 // Se imprime los using y inject necesarios
                 //IsDialog para sacarle el @page

@@ -1,0 +1,65 @@
+﻿@page "/scriptsql"
+@using System.Text;
+@inject AuxService auxServcice;
+@inject ISnackbar Snackbar;
+
+@using Serilog;
+@using Microsoft.Extensions.Logging;
+
+
+
+<MudText Typo="Typo.h4">Crear Script</MudText>
+    <MudGrid > 
+            <MudItem md="4">
+        <MudForm @bind-IsValid=@success>
+                    <MudTextField Class="col-12" @bind-Value="@rutaArchivoScript" Label="Ruta" HelperText="Indique la ruta donde se guardaran el script"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense"
+                                  Required="true"
+                                  RequiredError="Ingrese la ruta"
+                                  Immediate=true>
+                    </MudTextField>
+                    <MudButton Disabled="@(!success)" Variant="Variant.Filled" Color="Color.Primary" style="margin-top:2rem; border:1px solid; float:right; " OnClick="GuardarScript">Guardar Script</MudButton>
+                </MudForm>
+            </MudItem>
+    </MudGrid>
+
+    
+
+
+@code {
+    List<Clase> listado = new List<Clase>();
+    public string rutaArchivoScript = "";
+    public string NombreClase = "";
+    public bool success = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //Cargo la lista
+        listado = auxServcice.Listado;
+        NombreClase = auxServcice.NombreClase;
+
+        try
+        {
+            using (StreamWriter writer = new StreamWriter(rutaArchivoScript))
+            {
+                StringBuilder sbuilder = new StringBuilder();
+                sbuilder = ManejoComponenteScript.GuardarScript(NombreClase, listado, rutaArchivoScript,sbuilder);
+                writer.Write(sbuilder.ToString());
+            }
+
+        }
+        catch (Exception e)
+        {
+            Snackbar.Add("No se pudo ejecutar la accion", Severity.Error);
+            Log.Error(e.Message);
+        }
+
+        
+    }
+    public void GuardarScript()
+    {
+        
+       
+    }
+}

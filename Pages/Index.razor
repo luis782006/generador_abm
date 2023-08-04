@@ -20,7 +20,7 @@
      
         @*Formulario de Clase*@
 
-        <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors" ReadOnly="false" style="margin-left:2rem;">
+        <MudForm @ref="form" @bind-IsValid="@success" ReadOnly="false" style="margin-left:2rem;">
             <MudText Typo="Typo.h6">Agregue los atributos de la clase y el tipo de dato</MudText>
             <MudGrid>
                 <MudItem>
@@ -66,13 +66,13 @@
             <MudGrid>
                 <MudItem>
                     <MudText Typo="Typo.h6">Atributos</MudText>
-                    <MudTextField @ref="txtAtributo"
-                                  Class="col-12" @bind-Value="atributo" Label="Nombre de atributo"
-                                  Variant="Variant.Outlined"
-                                  Margin="Margin.Dense"
-                                  Required="true"
-                                  RequiredError="Ingrese el nombre del atributo"></MudTextField>
-
+                    <MudTextField @ref=txtAtributo
+                            @onfocusout="((e)=>onchange(atributo))"
+                            Class="col-12" @bind-Value="@atributo"  Label="Nombre de atributo"
+                            Variant="Variant.Outlined"
+                            Margin="Margin.Dense"
+                            Required="true"
+                            RequiredError="Ingrese el nombre del atributo"></MudTextField>
                 </MudItem>
 
                 <MudItem>
@@ -84,40 +84,46 @@
                         }
                     </MudSelect>
                 </MudItem>
+                    <MudItem>
+                        <MudText Typo="Typo.h6">Cantidad Caracteres</MudText>
+                        <MudTextField Class="col-12" @bind-Value="cantCaracteres" Label="Nombre de atributo"
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Dense"
+                                      Required="true"                                      
+                                      Disabled="@(tipoDatoSelecionado == EnumTipoDato.DataType.String ? false : true)"
+                                      RequiredError="Ingrese el nombre del atributo" />
+                            
+                    </MudItem>
                 <MudItem Class="ml-4">
                     <MudText Typo="Typo.h6">No acepta null</MudText>
                     <MudSwitch @bind-Checked="@aceptaNull" Color="Color.Primary" Style="margin:auto;" />
                 </MudItem>
                 <MudItem Class="ml-8">
                     <MudText Typo="Typo.h6">Valor por defecto</MudText>
-                    <MudTextField Class="col-12" @bind-Value="valorPorDefecto" Label="Valor por defecto"
+                    <MudTextField Class="col-12" @bind-Value="ValorPorDefecto" Label="Valor por defecto"
                                   Variant="Variant.Outlined"
                                   Margin="Margin.Dense"
                                   ></MudTextField>
                 </MudItem>
                 <MudItem style="display:flex; justify-content:center; align-items:flex-end; ">
                     <MudButton Variant="Variant.Filled" Disabled="@(!success)" Color="Color.Primary" @onclick="Agregar">Agregar</MudButton>
-                    @*<MudButton Variant="Variant.Filled"  Color="Color.Primary" @onclick="Agregar">Agregar</MudButton>*@
+                   
 
                 </MudItem>
                 @*Grid de Opciones Consultas Sql*@
-                    <MudGrid style="padding-left:0.6rem; padding-bottom:0.5rem; ">
-                            <MudItem >
-                                <MudText Typo="Typo.subtitle1">Eliga sobre las siguientes opciones</MudText>
-                                    <MudPaper style="display:flex; flex-direction:row; padding-left:0.2rem; padding-right:1rem; ">
-                                        <MudCheckBox @bind-Checked="@SQLBase" Size="Size.Medium" Label="Select-Base" Color="Color.Primary"></MudCheckBox>
-                                        <MudCheckBox @bind-Checked="@SQLInsert" Size="Size.Medium" Label="Insert-Base" Color="Color.Primary"></MudCheckBox>
-                                        <MudCheckBox @bind-Checked="@SQLUpdate" Size="Size.Medium" Label="Update-Base" Color="Color.Primary"></MudCheckBox>
-                                        <MudCheckBox @bind-Checked="@SQLDelete" Size="Size.Medium" Label="Delete-Base" Color="Color.Primary"></MudCheckBox>
-                                        <MudCheckBox @bind-Checked="@SQLToString" Size="Size.Medium" Label="ToString-Base" Color="Color.Primary"></MudCheckBox>
-                                    </MudPaper>
-                            </MudItem>
-
-                    </MudGrid>    
             </MudGrid>           
-        </MudForm>
+        </MudForm>        
         </MudPaper>
-     
+        <MudItem Class="pt-4">
+                <MudText Typo="Typo.subtitle1">Eliga sobre las siguientes opciones</MudText>
+            <MudPaper style="display:flex; flex-direction:row;flex-wrap:wrap; padding-left:0.2rem; padding-right:1rem;border-radius:1rem; border:2px solid #594ae2;" Elevation=2>
+                <MudCheckBox @bind-Checked="@SQLBase" Size="Size.Medium" Label="Select-Base" Color="Color.Primary"></MudCheckBox>
+                <MudCheckBox @bind-Checked="@SQLInsert" Size="Size.Medium" Label="Insert-Base" Color="Color.Primary"></MudCheckBox>
+                <MudCheckBox @bind-Checked="@SQLUpdate" Size="Size.Medium" Label="Update-Base" Color="Color.Primary"></MudCheckBox>
+                <MudCheckBox @bind-Checked="@SQLDelete" Size="Size.Medium" Label="Delete-Base" Color="Color.Primary"></MudCheckBox>
+                <MudCheckBox @bind-Checked="@SQLToString" Size="Size.Medium" Label="ToString-Base" Color="Color.Primary"></MudCheckBox>
+            </MudPaper>
+        </MudItem>
        <MudItem>
             <MudText Typo="Typo.h6" style="margin-top:1rem; margin-bottom:0;"> Editar codigo</MudText>
             <MudTextField T="string" @bind-Value="@textVar" style="padding-top:0px; padding-bottom:0px; border-radius:1rem; border:2px solid #594ae2; background-color:#333131; color:white; width=60px; height=40px;" Lines="20" />
@@ -164,7 +170,7 @@
                                             </MudSelect>    
                                             
                                         }
-                                            <MudTextField @bind-Value="@atributo.AceptaNull" Label="Acepta Nulos" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                            <MudTextField @bind-Value="@atributo.AceptaNull" Label="No acepta nulos" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
                                             <MudTextField @bind-Value="@atributo.ValorPorDefecto" Label="Valor por Defecto" style="margin-bottom:0.4rem;" Variant="Variant.Outlined" Margin="Margin.Dense" />
                                         </item>
 
@@ -210,7 +216,7 @@
 
 @code
 {
- 
+
     //Para manejo de errores formulario
     MudForm form;
     bool success;
@@ -227,8 +233,9 @@
     public string nombreClase="";
     public string nombreInterface;
     public string atributo;
+    public int cantCaracteres;
     public bool aceptaNull;
-    public string? valorPorDefecto;
+    public string? ValorPorDefecto;
     //variable para darle la opcion de elegir otro Tipo de dato
     public DataType? tipoDatoOtro;
     // Variable para modificar la tarjeta que contiene los datos del atributo
@@ -246,7 +253,7 @@
     //Instancia de clase
     Clase clase = new Clase();
     //Declaro un listado de Tipo Clase
-    
+
     //lista para produccion
     List<Clase> lstAtributos = new List<Clase>();
 
@@ -288,18 +295,29 @@
     //Bool Habilitar ListaComponente del Menu
 
     bool IsHabilitado = false;
-   
 
+    // Cambiar estado del Bool aceptaNulo
+    public void onchange(string atributo)
+    {
+       
+            if (atributo.Contains("ID") || atributo.Contains("Id"))
+            {
+                aceptaNull = true;
+                StateHasChanged();
+            }
+            
+    }
     public void Agregar()
     {
         //se invoca el metodo con los argumentos que ingresan por formulario
 
-        clase.AgregarAtributo(atributo, tipoDatoSelecionado, aceptaNull, valorPorDefecto);
+        clase.AgregarAtributo(atributo, tipoDatoSelecionado, aceptaNull, ValorPorDefecto,cantCaracteres);
         CargarListado();
         LimpiarForm();
         StateHasChanged();
         txtAtributo.FocusAsync();
         success = false;
+        cantCaracteres = 0;
     }
 
     public void GenerarAcrhivo()
@@ -384,7 +402,7 @@
         {
             Console.WriteLine("");    
         }
-        Console.WriteLine("Hola");
+       
     }
 
     public void GuardarConfirmarClase()
@@ -429,7 +447,7 @@
     {
         atributo="";
         aceptaNull=false;
-        valorPorDefecto=string.Empty;
+        ValorPorDefecto=string.Empty;
 
     }
 
@@ -503,5 +521,5 @@
     }
 
    
-
+    
 }
